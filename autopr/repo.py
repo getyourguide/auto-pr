@@ -7,7 +7,7 @@ from typing import List, Optional, Dict
 import click
 
 from autopr import database
-from autopr.util import CliException
+from autopr.util import CliException, error
 
 
 def pull_repositories(
@@ -27,7 +27,7 @@ def pull_repositories(
                 update_repos,
             )
         except CliException as e:
-            click.echo(f"Error: {e}", err=True)
+            error(f"Error: {e}")
 
 
 def _pull_repository(
@@ -93,7 +93,7 @@ def run_update_command(
     repo_dir = repos_dir / repository.name
 
     click.secho(f"Running update command for repository '{repository.name}':")
-    
+
     cwd = os.getcwd()
     os.chdir(repo_dir)
     _cmd(command)
@@ -105,6 +105,17 @@ def run_update_command(
 def get_diff(repos_dir: Path, repository: database.Repository):
     repo_dir = repos_dir / repository.name
     return _git_staged_diff(repo_dir)
+
+
+def commit_and_push_changes(
+    repos_dir: Path, repository: database.Repository, branch: str, message: str
+):
+    click.secho(f"Committing and pushing changes for repository '{repository.name}'")
+    repo_dir = repos_dir / repository.name
+    _git_commit(repo_dir, message)
+
+    force_push = repository.existing_pr is not None
+    _git_push(repo_dir, branch, force_push)
 
 
 def _cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> str:
@@ -163,3 +174,15 @@ def _git_staged_diff(repo_dir: Path) -> str:
 
 def _git_add_all(repo_dir: Path) -> str:
     return _cmd(["git", "-C", f"{repo_dir}", "add", "--all"])
+
+
+def _git_commit(repo_dir: Path, message) -> str:
+    return _cmd(["git", "-C", f"{repo_dir}", "commit", "-m", message])
+
+
+def _git_push(repo_dir: Path, branch: str, force: bool) -> str:
+    cmd = ["git", "-C", f"{repo_dir}", "push", "-u", "origin", branch]
+    if force:
+        cmd.append("--force")
+
+    return _cmd(cmd)

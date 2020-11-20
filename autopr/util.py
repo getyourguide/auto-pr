@@ -1,4 +1,10 @@
+import click
+
 DEBUG: bool = True
+
+
+class CliException(Exception):
+    pass
 
 
 def set_debug(debug: bool) -> None:
@@ -10,5 +16,9 @@ def is_debug() -> bool:
     return DEBUG
 
 
-class CliException(Exception):
-    pass
+def warning(msg: str) -> None:
+    click.secho(msg, fg="yellow", err=True)
+
+
+def error(msg: str) -> None:
+    click.secho(msg, fg="red", err=True)

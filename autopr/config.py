@@ -6,7 +6,8 @@ from marshmallow_annotations import AnnotationSchema
 
 
 DEFAULT_PR_TITLE = "Automatically generated PR"
-DEFAULT_PR_MESSAGE = "This is an automatically generated PR"
+DEFAULT_PR_MESSAGE = "Automatically generated commit"
+DEFAULT_PR_BODY = "This is an automatically generated PR"
 DEFAULT_PR_BRANCH = "autopr"
 
 FILTER_MODE_ADD = "add"
@@ -37,6 +38,7 @@ class PrTemplate:
     title: str = DEFAULT_PR_TITLE
     message: str = DEFAULT_PR_MESSAGE
     branch: str = DEFAULT_PR_BRANCH
+    body: str = DEFAULT_PR_BODY
 
 
 class PrTemplateSchema(AnnotationSchema):

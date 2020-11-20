@@ -1,4 +1,6 @@
+import time
 from pathlib import Path
+from typing import Optional
 
 import click
 
@@ -79,11 +81,7 @@ def pull(fetch_repo_list: bool, update_repos: bool):
     )
 
 
-@cli.command()
-def test():
-    cfg = workdir.read_config(WORKDIR)
-    db = workdir.read_database(WORKDIR)
-
+def _ensure_set_up(cfg: config.Config, db: database.Database):
     if db.needs_pulling():
         raise CliException("No data found. Please run 'pull' first.")
 
@@ -91,6 +89,13 @@ def test():
         raise CliException(
             "No update command found. Please set an update command in the config."
         )
+
+
+@cli.command()
+def test():
+    cfg = workdir.read_config(WORKDIR)
+    db = workdir.read_database(WORKDIR)
+    _ensure_set_up(cfg, db)
 
     for repository in db.repositories:
         # reset repo and check out branch
@@ -106,8 +111,34 @@ def test():
 
 
 @cli.command()
-def run():
-    pass
+@click.option("--pr-delay", type=click.FLOAT, default=None)
+def run(pr_delay: Optional[float]):
+    cfg = workdir.read_config(WORKDIR)
+    db = workdir.read_database(WORKDIR)
+    _ensure_set_up(cfg, db)
+
+    gh = github.create_github_client(cfg.credentials.api_key)
+
+    for repository in db.repositories:
+        if repository.done:
+            continue
+
+        # reset repo and check out branch
+        repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
+        repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
+        repo.commit_and_push_changes(
+            WORKDIR.repos_dir, repository, cfg.pr.branch, cfg.pr.message
+        )
+
+        repository.existing_pr = github.create_pr(gh, repository, cfg.pr)
+        repository.done = True
+        # persist database to be able to continue from there
+        workdir.write_database(WORKDIR, db)
+        click.secho(f"Done updating repository '{repository.name}'")
+
+        if pr_delay is not None:
+            click.secho(f"Sleeping for {pr_delay} seconds...")
+            time.sleep(pr_delay)
 
 
 @cli.command()
@@ -117,6 +148,21 @@ def restart():
     workdir.write_database(db)
 
 
+def _set_all_prs_open(open: bool):
+    cfg = workdir.read_config(WORKDIR)
+    db = workdir.read_database(WORKDIR)
+    gh = github.create_github_client(cfg.credentials.api_key)
+
+    for repository in db.repositories:
+        if repository.existing_pr is not None:
+            github.set_pr_open(gh, repository, open)
+
+
 @cli.command()
 def close():
-    pass
+    _set_all_prs_open(False)
+
+
+@cli.command()
+def reopen():
+    _set_all_prs_open(True)
