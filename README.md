@@ -1,9 +1,9 @@
-# bulk-repo-updater
+# auto-pr
 
 ## How to install
 
 ```bash
-pip install bulk-repo-updator
+pip install auto-pr
 ```
 
 ## Usage
@@ -22,4 +22,4 @@ For sensitive security matters please contact [security@getyourguide.com](mailto
 
 Copyright 2020 GetYourGuide GmbH.
 
-bulk-repo-updater is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full text.
+auto-pr is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full text.
