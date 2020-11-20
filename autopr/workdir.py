@@ -5,7 +5,7 @@ from typing import List
 import click
 import yaml
 
-from autopr.util import CliException
+from autopr.util import CliException, warning
 from autopr import config, database
 
 CONFIG_FILE_NAME = "config.yaml"
@@ -43,14 +43,14 @@ def init(wd: WorkDir, credentials: config.Credentials):
         cfg = config.Config(credentials=credentials, pr=pr)
         write_config(wd, cfg)
     else:
-        click.secho("config file exists - not overriding", err=True)
+        warning("config file exists - not overriding")
 
     # create empty database
     if not wd.database_file.exists():
         db = database.Database()
         write_database(wd, db)
     else:
-        click.secho("database file exists - not overriding", err=True)
+        warning("database file exists - not overriding")
 
 
 def write_config(wd: WorkDir, cfg: config.Config):

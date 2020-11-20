@@ -1,13 +1,13 @@
 import click
 
 from autopr import cli
-from autopr.util import CliException, is_debug
+from autopr.util import CliException, is_debug, error
 
 if __name__ == "__main__":
     try:
         cli()
     except CliException as e:
-        click.echo(f"Error: {e}", err=True)
+        error(f"Error: {e}")
         if is_debug():
             raise e
         else:

@@ -43,6 +43,31 @@ def get_user(gh: Github) -> database.GitUser:
     return user
 
 
+def create_pr(
+    gh: Github, repository: database.Repository, pr_template: config.PrTemplate
+) -> int:
+    gh_repo = gh.get_repo(repository.name)
+    gh_pr = gh_repo.create_pull(
+        pr_template.title,
+        pr_template.body,
+        repository.default_branch,
+        pr_template.branch,
+        maintainer_can_modify=True,
+    )
+    return gh_pr.id
+
+
+def set_pr_open(gh: Github, repository: database.Repository, open: bool) -> None:
+    if repository.existing_pr is None:
+        raise ValueError()
+
+    gh_repo = gh.get_repo(repository.name)
+    gh_pr = gh_repo.get_pull(repository.existing_pr)
+
+    status = "open" if open else "closed"
+    gh_pr.edit(status=status)
+
+
 def gather_repository_list(
     gh: Github, filters: List[config.Filter]
 ) -> List[database.Repository]:
