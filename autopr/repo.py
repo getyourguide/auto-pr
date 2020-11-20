@@ -93,7 +93,7 @@ def run_update_command(
     repo_dir = repos_dir / repository.name
 
     click.secho(f"Running update command for repository '{repository.name}':")
-    
+
     cwd = os.getcwd()
     os.chdir(repo_dir)
     _cmd(command)
