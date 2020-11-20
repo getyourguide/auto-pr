@@ -19,7 +19,13 @@ setup(
     url="https://github.com/getyourguide/auto-pr",
     packages=find_packages(),
     include_package_data=True,
-    install_requires=[],
+    install_requires=[
+        "marshmallow",
+        "marshmallow-annotations",
+        "click",
+        "pygithub",
+        "pyyaml",
+    ],
     python_requires=">=3.8",
     entry_points={
         "console_scripts": [

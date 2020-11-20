@@ -8,6 +8,7 @@ pytest = "*"
 setuptools = "*"
 wheel = "*"
 pre-commit = "*"
+coverage = "*"
 
 [packages]
 marshmallow = "*"
@@ -15,4 +16,3 @@ marshmallow-annotations = "*"
 click = "*"
 pygithub = "*"
 pyyaml = "*"
-coverage = "*"

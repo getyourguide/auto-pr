@@ -23,7 +23,7 @@ WORKDIR: workdir.WorkDir
         exists=False, file_okay=False, dir_okay=True, writable=True, readable=True
     ),
 )
-@click.option("--debug/--no-debug", default=False, is_flag=True)
+@click.option("--debug/--no-debug", envvar="APR_DEBUG", default=False, is_flag=True)
 def cli(wd_path: str, debug: bool):
     global WORKDIR
     WORKDIR = workdir.get(wd_path)
@@ -50,7 +50,7 @@ def init(api_key: str, ssh_key_file: str):
 def pull(fetch_repo_list: bool, update_repos: bool):
     cfg = workdir.read_config(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
-    user = gh.get_user(gh)
+    user = github.get_user(gh)
 
     click.secho(f"Running under user '{user.name}' with email '{user.email}'")
 
@@ -60,7 +60,7 @@ def pull(fetch_repo_list: bool, update_repos: bool):
 
     if fetch_repo_list:
         click.secho("Gathering repository list...")
-        repositories = gh.gather_repository_list(gh, cfg.repositories)
+        repositories = github.gather_repository_list(gh, cfg.repositories)
 
         # merge existing database with new one
         click.secho("Updating database")
@@ -127,7 +127,11 @@ def run(pr_delay: Optional[float]):
         repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
         repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
         repo.commit_and_push_changes(
-            WORKDIR.repos_dir, repository, cfg.pr.branch, cfg.pr.message
+            Path(cfg.credentials.ssh_key_file),
+            WORKDIR.repos_dir,
+            repository,
+            cfg.pr.branch,
+            cfg.pr.message,
         )
 
         repository.existing_pr = github.create_pr(gh, repository, cfg.pr)
