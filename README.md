@@ -1,5 +1,9 @@
 # auto-pr
 
+![CI](https://github.com/getyourguide/auto-pr/workflows/CI/badge.svg)
+
+A command line tool to perform bulk updates across multiple repositories.
+
 ## How to install
 
 ```bash
