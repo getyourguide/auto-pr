@@ -134,6 +134,7 @@ def run(pr_delay: Optional[float]):
         repository.done = True
         # persist database to be able to continue from there
         workdir.write_database(WORKDIR, db)
+        click.secho(f"Done updating repository '{repository.name}'")
 
         if pr_delay is not None:
             click.secho(f"Sleeping for {pr_delay} seconds...")
