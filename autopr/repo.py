@@ -93,15 +93,18 @@ def run_update_command(
     repo_dir = repos_dir / repository.name
 
     click.secho(f"Running update command for repository '{repository.name}':")
+    
     cwd = os.getcwd()
     os.chdir(repo_dir)
     _cmd(command)
     os.chdir(cwd)
 
+    _git_add_all(repo_dir)
+
 
 def get_diff(repos_dir: Path, repository: database.Repository):
     repo_dir = repos_dir / repository.name
-    return _git_diff(repo_dir)
+    return _git_staged_diff(repo_dir)
 
 
 def _cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> str:
@@ -154,5 +157,9 @@ def _git_config(repo_dir: Path, key: str, value: str) -> None:
     _cmd(["git", "-C", f"{repo_dir}", "config", key, value])
 
 
-def _git_diff(repo_dir: Path) -> str:
-    return _cmd(["git", "-C", f"{repo_dir}", "diff"])
+def _git_staged_diff(repo_dir: Path) -> str:
+    return _cmd(["git", "-C", f"{repo_dir}", "diff", "--staged"])
+
+
+def _git_add_all(repo_dir: Path) -> str:
+    return _cmd(["git", "-C", f"{repo_dir}", "add", "--all"])
