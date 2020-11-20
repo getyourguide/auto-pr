@@ -1,4 +1,3 @@
-from typing import List
 from unittest.mock import patch, Mock
 
 from autopr.config import Filter, FILTER_MODE_ADD

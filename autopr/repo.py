@@ -96,7 +96,7 @@ def run_update_command(
 
     cwd = os.getcwd()
     os.chdir(repo_dir)
-    _cmd(command)
+    run_cmd(command)
     os.chdir(cwd)
 
     _git_add_all(repo_dir)
@@ -108,17 +108,21 @@ def get_diff(repos_dir: Path, repository: database.Repository):
 
 
 def commit_and_push_changes(
-    repos_dir: Path, repository: database.Repository, branch: str, message: str
+    ssh_key_file: Path,
+    repos_dir: Path,
+    repository: database.Repository,
+    branch: str,
+    message: str,
 ):
     click.secho(f"Committing and pushing changes for repository '{repository.name}'")
     repo_dir = repos_dir / repository.name
     _git_commit(repo_dir, message)
 
     force_push = repository.existing_pr is not None
-    _git_push(repo_dir, branch, force_push)
+    _git_push(ssh_key_file, repo_dir, branch, force_push)
 
 
-def _cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> str:
+def run_cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> str:
     try:
         return subprocess.check_output(
             cmd,
@@ -131,10 +135,14 @@ def _cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> str:
         )
 
 
+def _get_git_ssh_command(ssh_key_file: Path) -> str:
+    return f"ssh -i {ssh_key_file} -o IdentitiesOnly=yes"
+
+
 def _git_shallow_clone(
     ssh_key_file: Path, repo_dir: Path, ssh_url: str, branch: str
 ) -> None:
-    git_ssh_command = f"ssh -i {ssh_key_file} -o IdentitiesOnly=yes"
+    git_ssh_command = _get_git_ssh_command(ssh_key_file)
     command = [
         "git",
         "clone",
@@ -145,44 +153,45 @@ def _git_shallow_clone(
         "--branch",
         branch,
     ]
-    _cmd(command, env={"GIT_SSH_COMMAND": git_ssh_command})
+    run_cmd(command, env={"GIT_SSH_COMMAND": git_ssh_command})
 
 
 def _git_checkout(repo_dir: Path, branch: str) -> None:
-    _cmd(["git", "-C", f"{repo_dir}", "checkout", branch])
+    run_cmd(["git", "-C", f"{repo_dir}", "checkout", branch])
 
 
 def _git_branch_checkout_reset(repo_dir: Path, branch: str) -> None:
-    _cmd(["git", "-C", f"{repo_dir}", "checkout", "-B", branch])
+    run_cmd(["git", "-C", f"{repo_dir}", "checkout", "-B", branch])
 
 
 def _git_reset_hard(repo_dir: Path) -> None:
-    _cmd(["git", "-C", f"{repo_dir}", "reset", "--hard"])
+    run_cmd(["git", "-C", f"{repo_dir}", "reset", "--hard"])
 
 
 def _git_pull(repo_dir: Path) -> None:
-    _cmd(["git", "-C", f"{repo_dir}", "pull"])
+    run_cmd(["git", "-C", f"{repo_dir}", "pull"])
 
 
 def _git_config(repo_dir: Path, key: str, value: str) -> None:
-    _cmd(["git", "-C", f"{repo_dir}", "config", key, value])
+    run_cmd(["git", "-C", f"{repo_dir}", "config", key, value])
 
 
 def _git_staged_diff(repo_dir: Path) -> str:
-    return _cmd(["git", "-C", f"{repo_dir}", "diff", "--staged"])
+    return run_cmd(["git", "-C", f"{repo_dir}", "diff", "--staged"])
 
 
-def _git_add_all(repo_dir: Path) -> str:
-    return _cmd(["git", "-C", f"{repo_dir}", "add", "--all"])
+def _git_add_all(repo_dir: Path) -> None:
+    run_cmd(["git", "-C", f"{repo_dir}", "add", "--all"])
 
 
-def _git_commit(repo_dir: Path, message) -> str:
-    return _cmd(["git", "-C", f"{repo_dir}", "commit", "-m", message])
+def _git_commit(repo_dir: Path, message) -> None:
+    run_cmd(["git", "-C", f"{repo_dir}", "commit", "-m", message])
 
 
-def _git_push(repo_dir: Path, branch: str, force: bool) -> str:
+def _git_push(ssh_key_file: Path, repo_dir: Path, branch: str, force: bool) -> None:
+    git_ssh_command = _get_git_ssh_command(ssh_key_file)
     cmd = ["git", "-C", f"{repo_dir}", "push", "-u", "origin", branch]
     if force:
         cmd.append("--force")
 
-    return _cmd(cmd)
+    run_cmd(cmd, env={"GIT_SSH_COMMAND": git_ssh_command})
