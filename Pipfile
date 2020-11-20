@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+setuptools = "*"
+wheel = "*"
+pre-commit = "*"
+
+[packages]
+marshmallow = "*"
+marshmallow-annotations = "*"
+click = "*"
+pygithub = "*"
+pyyaml = "*"
+coverage = "*"
+
+[requires]
+python_version = "3.9"
