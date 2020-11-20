@@ -16,6 +16,3 @@ click = "*"
 pygithub = "*"
 pyyaml = "*"
 coverage = "*"
-
-[requires]
-python_version = "3.9"
