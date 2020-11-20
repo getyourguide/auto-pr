@@ -98,7 +98,7 @@ def test():
         repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
         diff = repo.get_diff(WORKDIR.repos_dir, repository)
 
-        click.secho(f"Diff for repository '{repository.name}:\n{diff}'")
+        click.secho(f"Diff for repository '{repository.name}':\n{diff}")
         if not click.confirm("Continue?"):
             return
 
