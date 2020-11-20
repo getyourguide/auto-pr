@@ -154,7 +154,7 @@ def _set_all_prs_open(open: bool):
 
     for repository in db.repositories:
         if repository.existing_pr is not None:
-            github.set_pr_open(gh, repository, False)
+            github.set_pr_open(gh, repository, open)
 
 
 @cli.command()
