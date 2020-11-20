@@ -15,8 +15,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - uses: dschep/install-pipenv-action@v1
-    - name: Install pip dependencies
+    - name: Install pip dependencies (locked)
+      if: ${{ matrix.python-version == 3.9 }}
       run: pipenv install -d
+    - name: Install pip dependencies (unlocked)
+      if: ${{ matrix.python-version != 3.9 }}
+      run: pipenv install -d --skip-lock
     - name: Run tests
       run: pipenv run pytest . -v
   lint:
