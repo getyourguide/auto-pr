@@ -12,25 +12,12 @@ def run_cli(
     cmd: List[str],
     cfg: Optional[config.Config] = None,
     db: Optional[database.Database] = None,
-    create_repo_dirs: bool = False,
     should_fail: bool = False,
 ) -> Result:
     if cfg:
         workdir.write_config(wd, cfg)
     if db:
         workdir.write_database(wd, db)
-
-    if create_repo_dirs:
-        if db is None:
-            raise Exception(
-                "A database needs to be passed if repository directories should be created."
-            )
-
-        for repository in db.repositories:
-            repo_dir = wd.repos_dir / repository.name
-            repo_dir.mkdir(parents=True, exist_ok=True)
-            subprocess.check_output(["git", "-C", f"{repo_dir}", "init"])
-            subprocess.check_output(["git", "-C", f"{repo_dir}", "commit", "--allow-empty", "-m", "test"])
 
     runner = CliRunner()
     result = runner.invoke(
@@ -54,6 +41,21 @@ def run_cli(
         assert False
 
     return result
+
+
+def init_git_repos(wd: workdir.WorkDir, db: database.Database):
+    if db is None:
+        raise Exception(
+            "A database needs to be passed if repository directories should be created."
+        )
+
+    for repository in db.repositories:
+        repo_dir = wd.repos_dir / repository.name
+        repo_dir.mkdir(parents=True, exist_ok=True)
+        subprocess.check_output(["git", "-C", f"{repo_dir}", "init"])
+        subprocess.check_output(["git", "-C", f"{repo_dir}", "commit", "--allow-empty", "-m", "test"])
+        subprocess.check_output(["git", "-C", f"{repo_dir}", "config", "user.name", "Test"])
+        subprocess.check_output(["git", "-C", f"{repo_dir}", "config", "user.email", "test@test.com"])
 
 
 def simple_test_config() -> config.Config:

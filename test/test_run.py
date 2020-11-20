@@ -4,7 +4,7 @@ from typing import List, Optional, Dict
 from unittest.mock import patch, Mock
 
 from autopr import workdir
-from test.test_utils import run_cli, simple_test_config, simple_test_database
+from test.test_utils import run_cli, simple_test_config, simple_test_database, init_git_repos
 
 
 def _test_cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> str:
@@ -25,11 +25,12 @@ def test_create_files(_create_github_client: Mock, tmp_path):
     testkey.touch()
 
     wd = workdir.WorkDir(Path(tmp_path))
+    db = simple_test_database()
+    init_git_repos(wd, db)
     result = run_cli(
         wd,
         ["run"],
         cfg=simple_test_config(),
-        db=simple_test_database(),
-        create_repo_dirs=True,
+        db=db,
     )
     print(result.output)
