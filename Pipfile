@@ -16,6 +16,3 @@ marshmallow-annotations = "*"
 click = "*"
 pygithub = "*"
 pyyaml = "*"
-
-[requires]
-python_version = "3.9"
