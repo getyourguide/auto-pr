@@ -27,9 +27,7 @@ def run_cli(
         catch_exceptions=True,
     )
     if result.exception is not None:
-        print(
-            f"Exception:\n{result.output}"
-        )
+        print(f"Exception:\n{result.output}")
         raise result.exception
 
     if (should_fail and result.exit_code == 0) or (
@@ -53,9 +51,15 @@ def init_git_repos(wd: workdir.WorkDir, db: database.Database):
         repo_dir = wd.repos_dir / repository.name
         repo_dir.mkdir(parents=True, exist_ok=True)
         subprocess.check_output(["git", "-C", f"{repo_dir}", "init"])
-        subprocess.check_output(["git", "-C", f"{repo_dir}", "commit", "--allow-empty", "-m", "test"])
-        subprocess.check_output(["git", "-C", f"{repo_dir}", "config", "user.name", "Test"])
-        subprocess.check_output(["git", "-C", f"{repo_dir}", "config", "user.email", "test@test.com"])
+        subprocess.check_output(
+            ["git", "-C", f"{repo_dir}", "commit", "--allow-empty", "-m", "test"]
+        )
+        subprocess.check_output(
+            ["git", "-C", f"{repo_dir}", "config", "user.name", "Test"]
+        )
+        subprocess.check_output(
+            ["git", "-C", f"{repo_dir}", "config", "user.email", "test@test.com"]
+        )
 
 
 def simple_test_config() -> config.Config:

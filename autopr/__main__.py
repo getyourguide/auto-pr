@@ -1,5 +1,3 @@
-import click
-
 from autopr import cli
 from autopr.util import CliException, is_debug, error
 

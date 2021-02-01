@@ -1,8 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
-
-from marshmallow import post_load
-from marshmallow_annotations import AnnotationSchema
+import marshmallow_dataclass
 
 
 DEFAULT_PR_TITLE = "Automatically generated PR"
@@ -23,14 +21,7 @@ class Credentials:
     ssh_key_file: str
 
 
-class CredentialsSchema(AnnotationSchema):
-    class Meta:
-        target = Credentials
-        register_as_scheme = True
-
-    @post_load
-    def build(self, data, **kwargs):
-        return Credentials(**data)
+credentials_schema = marshmallow_dataclass.class_schema(Credentials)()
 
 
 @dataclass
@@ -41,14 +32,7 @@ class PrTemplate:
     body: str = DEFAULT_PR_BODY
 
 
-class PrTemplateSchema(AnnotationSchema):
-    class Meta:
-        target = PrTemplate
-        register_as_scheme = True
-
-    @post_load
-    def build(self, data, **kwargs):
-        return PrTemplate(**data)
+pr_template_schema = marshmallow_dataclass.class_schema(PrTemplate)()
 
 
 @dataclass
@@ -64,14 +48,7 @@ class Filter:
     ] = None  # a regex that is applied to the owners, must match one
 
 
-class FilterSchema(AnnotationSchema):
-    class Meta:
-        target = Filter
-        register_as_scheme = True
-
-    @post_load
-    def build(self, data, **kwargs):
-        return Filter(**data)
+filters_schema = marshmallow_dataclass.class_schema(Filter)()
 
 
 @dataclass
@@ -82,11 +59,4 @@ class Config:
     update_command: List[str] = field(default_factory=list)
 
 
-class ConfigSchema(AnnotationSchema):
-    class Meta:
-        target = Config
-        register_as_scheme = True
-
-    @post_load
-    def build(self, data, **kwargs):
-        return Config(**data)
+config_schema = marshmallow_dataclass.class_schema(Config)()

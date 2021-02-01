@@ -1,8 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional, List
 
-from marshmallow import post_load
-from marshmallow_annotations import AnnotationSchema
+import marshmallow_dataclass
 
 
 @dataclass
@@ -16,14 +15,7 @@ class Repository:
     done: bool = False  # true if a PR has been opened and 'restart' was not called
 
 
-class RepositorySchema(AnnotationSchema):
-    class Meta:
-        target = Repository
-        register_as_scheme = True
-
-    @post_load
-    def build(self, data, **kwargs):
-        return Repository(**data)
+repository_schema = marshmallow_dataclass.class_schema(Repository)()
 
 
 @dataclass
@@ -32,14 +24,7 @@ class GitUser:
     email: str
 
 
-class GitUserSchema(AnnotationSchema):
-    class Meta:
-        target = GitUser
-        register_as_scheme = True
-
-    @post_load
-    def build(self, data, **kwargs):
-        return GitUser(**data)
+git_user_schema = marshmallow_dataclass.class_schema(GitUser)()
 
 
 @dataclass
@@ -66,11 +51,4 @@ class Database:
             repository.done = False
 
 
-class DatabaseSchema(AnnotationSchema):
-    class Meta:
-        target = Database
-        register_as_scheme = True
-
-    @post_load
-    def build(self, data, **kwargs):
-        return Database(**data)
+database_schema = marshmallow_dataclass.class_schema(Database)()
