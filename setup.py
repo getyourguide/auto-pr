@@ -21,7 +21,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "marshmallow",
-        "marshmallow-annotations",
+        "marshmallow-dataclass",
         "click",
         "pygithub",
         "pyyaml",
