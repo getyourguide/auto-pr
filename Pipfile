@@ -10,7 +10,6 @@ setuptools = "*"
 wheel = "*"
 pre-commit = "*"
 coverage = "*"
-auto-pr = {editable = true, path = "."}
 
 [packages]
 marshmallow = "*"
