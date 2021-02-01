@@ -60,6 +60,9 @@ def init_git_repos(wd: workdir.WorkDir, db: database.Database):
         subprocess.check_output(
             ["git", "-C", f"{repo_dir}", "config", "user.email", "test@test.com"]
         )
+        subprocess.check_output(
+            ["git", "-C", f"{repo_dir}", "config", "commit.gpgsign", "false"]
+        )
 
 
 def simple_test_config() -> config.Config:
