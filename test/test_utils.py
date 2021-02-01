@@ -52,9 +52,6 @@ def init_git_repos(wd: workdir.WorkDir, db: database.Database):
         repo_dir.mkdir(parents=True, exist_ok=True)
         subprocess.check_output(["git", "-C", f"{repo_dir}", "init"])
         subprocess.check_output(
-            ["git", "-C", f"{repo_dir}", "commit", "--allow-empty", "-m", "test"]
-        )
-        subprocess.check_output(
             ["git", "-C", f"{repo_dir}", "config", "user.name", "Test"]
         )
         subprocess.check_output(
@@ -62,6 +59,9 @@ def init_git_repos(wd: workdir.WorkDir, db: database.Database):
         )
         subprocess.check_output(
             ["git", "-C", f"{repo_dir}", "config", "commit.gpgsign", "false"]
+        )
+        subprocess.check_output(
+            ["git", "-C", f"{repo_dir}", "commit", "--allow-empty", "-m", "test"]
         )
 
 
