@@ -22,6 +22,8 @@ def _test_cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> Optional[
                 f"Command {' '.join(cmd)} failed (code: {exc.returncode}):\n{exc.output}"
             )
 
+    return None
+
 
 @patch("autopr.repo.run_cmd", new=_test_cmd)
 @patch("autopr.github.create_github_client")
