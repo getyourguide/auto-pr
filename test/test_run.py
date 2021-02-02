@@ -4,18 +4,25 @@ from typing import List, Optional, Dict
 from unittest.mock import patch, Mock
 
 from autopr import workdir
-from test.test_utils import run_cli, simple_test_config, simple_test_database, init_git_repos
+from test.test_utils import (
+    run_cli,
+    simple_test_config,
+    simple_test_database,
+    init_git_repos,
+)
 
 
-def _test_cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> str:
+def _test_cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> Optional[str]:
     commands = ["reset", "checkout", "add", "commit", "bash"]
     if any(subcommand in cmd for subcommand in commands):
         try:
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT).decode()
+            return subprocess.check_output(cmd, stderr=subprocess.STDOUT).decode()
         except subprocess.CalledProcessError as exc:
             raise Exception(
                 f"Command {' '.join(cmd)} failed (code: {exc.returncode}):\n{exc.output}"
             )
+
+    return None
 
 
 @patch("autopr.repo.run_cmd", new=_test_cmd)

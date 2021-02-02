@@ -16,7 +16,7 @@ pip install auto-pr
 auto-pr init --api-key=<github_token> --ssh-key-file=<path-to-ssh-key>
 ```
 
-Where `<github_token>` is a Github personal token which has repo scope.
+Where `<github_token>` is a Github personal token which has `repo` and `user:user:email` scope.
 
 ## Security
 

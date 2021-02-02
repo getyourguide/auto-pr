@@ -5,14 +5,16 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+pytest-socket = "*"
 setuptools = "*"
 wheel = "*"
 pre-commit = "*"
 coverage = "*"
+pipenv-setup = "*"
 
 [packages]
 marshmallow = "*"
-marshmallow-annotations = "*"
+marshmallow-dataclass = "*"
 click = "*"
 pygithub = "*"
 pyyaml = "*"

@@ -4,6 +4,7 @@ from typing import List
 
 import click
 import yaml
+from marshmallow import ValidationError
 
 from autopr.util import CliException, warning
 from autopr import config, database
@@ -56,7 +57,7 @@ def init(wd: WorkDir, credentials: config.Credentials):
 def write_config(wd: WorkDir, cfg: config.Config):
     # load config file
     try:
-        data = config.ConfigSchema().dump(cfg).data
+        data = config.CONFIG_SCHEMA.dump(cfg)
         with open(wd.config_file, "w") as config_file:
             yaml.dump(data, config_file, default_flow_style=False)
     except IOError as e:
@@ -74,17 +75,16 @@ def read_config(wd: WorkDir) -> config.Config:
         raise CliException(f"Failed to parse config: {e}")
 
     # parse config data
-    result = config.ConfigSchema().load(config_dict)
-    if result.errors:
-        raise CliException(f"Failed to deserialize config: {result.error}")
-    else:
-        return result.data
+    try:
+        return config.CONFIG_SCHEMA.load(config_dict)
+    except ValidationError as err:
+        raise CliException(f"Failed to deserialize config: {err.messages}")
 
 
 def write_database(wd: WorkDir, db: database.Database):
     # load database file
     try:
-        data = database.DatabaseSchema().dump(db).data
+        data = database.DATABASE_SCHEMA.dump(db)
         with open(wd.database_file, "w") as database_file:
             json.dump(data, database_file, indent=4, sort_keys=True)
     except IOError as e:
@@ -102,11 +102,10 @@ def read_database(wd: WorkDir) -> database.Database:
         raise CliException(f"Failed to parse database: {e}")
 
     # parse database data
-    result = database.DatabaseSchema().load(database_dict)
-    if result.errors:
-        raise CliException(f"Failed to deserialize database: {result.error}")
-    else:
-        return result.data
+    try:
+        return database.DATABASE_SCHEMA.load(database_dict)
+    except ValidationError as err:
+        raise CliException(f"Failed to deserialize database: {err.messages}")
 
 
 def get(wd_path: str) -> WorkDir:

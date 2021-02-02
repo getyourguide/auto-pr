@@ -6,7 +6,7 @@ from typing import List, Optional, Dict
 
 import click
 
-from autopr import database
+from autopr import database, util
 from autopr.util import CliException, error
 
 
@@ -124,10 +124,11 @@ def commit_and_push_changes(
 
 def run_cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> str:
     try:
+        util.debug(f"Running: {' '.join(cmd)}")
         return subprocess.check_output(
             cmd,
             stderr=subprocess.STDOUT,
-            env=(env or {}),
+            env=env,
         ).decode()
     except subprocess.CalledProcessError as exc:
         raise CliException(
@@ -153,7 +154,10 @@ def _git_shallow_clone(
         "--branch",
         branch,
     ]
-    run_cmd(command, env={"GIT_SSH_COMMAND": git_ssh_command})
+
+    env = os.environ.copy()
+    env.update({"GIT_SSH_COMMAND": git_ssh_command})
+    run_cmd(command, env=env)
 
 
 def _git_checkout(repo_dir: Path, branch: str) -> None:

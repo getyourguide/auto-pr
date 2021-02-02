@@ -40,6 +40,7 @@ def cli(wd_path: str, debug: bool):
     required=True,
 )
 def init(api_key: str, ssh_key_file: str):
+    """ Initialise the configuration and database. """
     credentials = config.Credentials(api_key=api_key, ssh_key_file=ssh_key_file)
     workdir.init(WORKDIR, credentials)
 
@@ -48,6 +49,7 @@ def init(api_key: str, ssh_key_file: str):
 @click.option("--fetch-repo-list/--no-fetch-repo-list", default=True, is_flag=True)
 @click.option("--update-repos/--no-update-repos", default=False, is_flag=True)
 def pull(fetch_repo_list: bool, update_repos: bool):
+    """ Pull down repositories based on configuration """
     cfg = workdir.read_config(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
     user = github.get_user(gh)
@@ -93,6 +95,7 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
 
 @cli.command()
 def test():
+    """ Check what expected diff will be for command execution. """
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)

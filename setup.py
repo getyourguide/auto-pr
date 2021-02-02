@@ -21,15 +21,16 @@ setup(
     include_package_data=True,
     install_requires=[
         "marshmallow",
-        "marshmallow-annotations",
+        "marshmallow-dataclass",
         "click",
         "pygithub",
         "pyyaml",
     ],
+    dependency_links=[],
     python_requires=">=3.8",
     entry_points={
         "console_scripts": [
-            "auto-pr = autopr.main",
+            "auto-pr = autopr",
         ],
     },
 )
