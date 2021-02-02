@@ -42,7 +42,7 @@ class Filter:
     archived: Optional[bool] = None
     match_name: Optional[
         List[str]
-    ] = field(default_factory=list)  # a list of regex that are applied to the names, must match one
+    ] = None  # a list of regex that are applied to the names, must match one
     match_owner: Optional[
         str
     ] = None  # a regex that is applied to the owners, must match one
