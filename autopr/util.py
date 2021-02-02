@@ -16,6 +16,13 @@ def is_debug() -> bool:
     return DEBUG
 
 
+def debug(msg: str) -> None:
+    if not is_debug():
+        return
+
+    click.secho(msg)
+
+
 def warning(msg: str) -> None:
     click.secho(msg, fg="yellow", err=True)
 
