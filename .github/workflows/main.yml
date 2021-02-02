@@ -23,7 +23,7 @@ jobs:
       if: ${{ matrix.python-version != 3.9 }}
       run: pipenv install -d --skip-lock
     - name: Run tests
-      run: pipenv run pytest . -v
+      run: pipenv run pytest test/ -v
   lint:
     runs-on: ubuntu-18.04
     steps:
