@@ -10,6 +10,7 @@ setuptools = "*"
 wheel = "*"
 pre-commit = "*"
 coverage = "*"
+pipenv-setup = "*"
 
 [packages]
 marshmallow = "*"

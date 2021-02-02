@@ -26,10 +26,7 @@ setup(
         "pygithub",
         "pyyaml",
     ],
+    # dependency_links=[],
     python_requires=">=3.8",
-    entry_points={
-        "console_scripts": [
-            "auto-pr = autopr",
-        ],
-    },
+    entry_points={"console_scripts": ["auto-pr = autopr",],},
 )
