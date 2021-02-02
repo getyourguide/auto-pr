@@ -122,7 +122,12 @@ def commit_and_push_changes(
     _git_push(ssh_key_file, repo_dir, branch, force_push)
 
 
-def run_cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> str:
+def run_cmd(cmd: List[str], additional_env: Optional[Dict[str, str]] = None) -> str:
+    env = None
+    if additional_env:
+        env = os.environ.copy()
+        env.update(additional_env)
+
     try:
         util.debug(f"Running: {' '.join(cmd)}")
         return subprocess.check_output(
@@ -155,9 +160,7 @@ def _git_shallow_clone(
         branch,
     ]
 
-    env = os.environ.copy()
-    env.update({"GIT_SSH_COMMAND": git_ssh_command})
-    run_cmd(command, env=env)
+    run_cmd(command, additional_env={"GIT_SSH_COMMAND": git_ssh_command})
 
 
 def _git_checkout(repo_dir: Path, branch: str) -> None:
@@ -198,4 +201,4 @@ def _git_push(ssh_key_file: Path, repo_dir: Path, branch: str, force: bool) -> N
     if force:
         cmd.append("--force")
 
-    run_cmd(cmd, env={"GIT_SSH_COMMAND": git_ssh_command})
+    run_cmd(cmd, additional_env={"GIT_SSH_COMMAND": git_ssh_command})
