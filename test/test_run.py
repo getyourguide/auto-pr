@@ -12,7 +12,9 @@ from test.test_utils import (
 )
 
 
-def _test_cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> Optional[str]:
+def _test_cmd(
+    cmd: List[str], additional_env: Optional[Dict[str, str]] = None
+) -> Optional[str]:
     commands = ["reset", "checkout", "add", "commit", "bash"]
     if any(subcommand in cmd for subcommand in commands):
         try:
