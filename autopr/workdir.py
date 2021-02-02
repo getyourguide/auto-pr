@@ -57,7 +57,7 @@ def init(wd: WorkDir, credentials: config.Credentials):
 def write_config(wd: WorkDir, cfg: config.Config):
     # load config file
     try:
-        data = config.config_schema.dump(cfg)
+        data = config.CONFIG_SCHEMA.dump(cfg)
         with open(wd.config_file, "w") as config_file:
             yaml.dump(data, config_file, default_flow_style=False)
     except IOError as e:
@@ -76,7 +76,7 @@ def read_config(wd: WorkDir) -> config.Config:
 
     # parse config data
     try:
-        return config.config_schema.load(config_dict)
+        return config.CONFIG_SCHEMA.load(config_dict)
     except ValidationError as err:
         raise CliException(f"Failed to deserialize config: {err.messages}")
 
@@ -84,7 +84,7 @@ def read_config(wd: WorkDir) -> config.Config:
 def write_database(wd: WorkDir, db: database.Database):
     # load database file
     try:
-        data = database.database_schema.dump(db)
+        data = database.DATABASE_SCHEMA.dump(db)
         with open(wd.database_file, "w") as database_file:
             json.dump(data, database_file, indent=4, sort_keys=True)
     except IOError as e:
@@ -103,7 +103,7 @@ def read_database(wd: WorkDir) -> database.Database:
 
     # parse database data
     try:
-        return database.database_schema.load(database_dict)
+        return database.DATABASE_SCHEMA.load(database_dict)
     except ValidationError as err:
         raise CliException(f"Failed to deserialize database: {err.messages}")
 

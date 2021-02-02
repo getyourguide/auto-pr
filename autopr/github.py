@@ -138,7 +138,7 @@ def _filter_matches(filter: config.Filter, filter_info: FilterInfo):
         if filter_info.archived != filter.archived:
             return False
 
-    if filter.match_name is not None and len(filter.match_name) > 0:
+    if filter.match_name is not None:
         if all(
             not re.match(pattern, filter_info.name) for pattern in filter.match_name
         ):

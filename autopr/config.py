@@ -21,7 +21,7 @@ class Credentials:
     ssh_key_file: str
 
 
-credentials_schema = marshmallow_dataclass.class_schema(Credentials)()
+CREDENTIALS_SCHEMA = marshmallow_dataclass.class_schema(Credentials)()
 
 
 @dataclass
@@ -32,7 +32,7 @@ class PrTemplate:
     body: str = DEFAULT_PR_BODY
 
 
-pr_template_schema = marshmallow_dataclass.class_schema(PrTemplate)()
+PR_TEMPLATE_SCHEMA = marshmallow_dataclass.class_schema(PrTemplate)()
 
 
 @dataclass
@@ -48,7 +48,7 @@ class Filter:
     ] = None  # a regex that is applied to the owners, must match one
 
 
-filters_schema = marshmallow_dataclass.class_schema(Filter)()
+FILTERS_SCHEMA = marshmallow_dataclass.class_schema(Filter)()
 
 
 @dataclass
@@ -59,4 +59,4 @@ class Config:
     update_command: List[str] = field(default_factory=list)
 
 
-config_schema = marshmallow_dataclass.class_schema(Config)()
+CONFIG_SCHEMA = marshmallow_dataclass.class_schema(Config)()

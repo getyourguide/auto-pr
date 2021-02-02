@@ -24,7 +24,7 @@ class GitUser:
     email: str
 
 
-git_user_schema = marshmallow_dataclass.class_schema(GitUser)()
+GIT_USER_SCHEMA = marshmallow_dataclass.class_schema(GitUser)()
 
 
 @dataclass
@@ -51,4 +51,4 @@ class Database:
             repository.done = False
 
 
-database_schema = marshmallow_dataclass.class_schema(Database)()
+DATABASE_SCHEMA = marshmallow_dataclass.class_schema(Database)()

@@ -128,7 +128,7 @@ def run_cmd(cmd: List[str], env: Optional[Dict[str, str]] = None) -> str:
         return subprocess.check_output(
             cmd,
             stderr=subprocess.STDOUT,
-            env=(env or None),
+            env=env,
         ).decode()
     except subprocess.CalledProcessError as exc:
         raise CliException(
