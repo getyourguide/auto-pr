@@ -46,7 +46,7 @@ def get_user(gh: Github) -> database.GitUser:
 def create_pr(
     gh: Github, repository: database.Repository, pr_template: config.PrTemplate
 ) -> int:
-    gh_repo = gh.get_repo(repository.name)
+    gh_repo = gh.get_repo(repository.full_name)
     gh_pr = gh_repo.create_pull(
         pr_template.title,
         pr_template.body,

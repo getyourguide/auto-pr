@@ -14,6 +14,10 @@ class Repository:
     removed: bool = False  # true if the repo is not in the config's filters anymore, but still has a PR open
     done: bool = False  # true if a PR has been opened and 'restart' was not called
 
+    @property
+    def full_name(self) -> str:
+        return f"{self.owner}/{self.name}"
+
 
 repository_schema = marshmallow_dataclass.class_schema(Repository)()
 
