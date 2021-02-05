@@ -35,7 +35,7 @@ pr:
     Can be multi-line :)
   branch: auto-pr # The branch name to use when making changes
   message: Replace default pipelines with modules # Commit message
-  title: '[XXX-YYY] My awesome change' # Title of the PR
+  title: 'My awesome change' # Title of the PR
 repositories: # Rules that define what repos to update
   - mode: add
     match_owner: <org/user>
