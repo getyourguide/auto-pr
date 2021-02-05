@@ -44,6 +44,20 @@ update_command:
   - my-file
 ```
 
+### Repositories
+
+You can define the list of repositories to pull and build into the database to update using a list of rules.
+
+- `mode` - either `add` or `remove` - used to either match or negate
+- `public` (optional) - pull only public or private, leave out for both
+- `archived` (optional) -  archived or non-archived, leave out for both
+- `match_owner` (optional) - the owner or user to pull
+- `match_name` (optional) - a list of regular expressions to match against to pull
+
+###  Update Command
+
+TBD
+
 ### Pull
 
 Once you have configured the project you can now pull the repositories down that match your configuration.
