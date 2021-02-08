@@ -129,7 +129,7 @@ def run(pr_delay: Optional[float]):
         # reset repo and check out branch
         repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
         repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
-        repo.commit_and_push_changes(
+        updated = repo.commit_and_push_changes(
             Path(cfg.credentials.ssh_key_file),
             WORKDIR.repos_dir,
             repository,
@@ -137,7 +137,7 @@ def run(pr_delay: Optional[float]):
             cfg.pr.message,
         )
 
-        if repository.existing_pr is None:
+        if updated and repository.existing_pr is None:
             repository.existing_pr = github.create_pr(gh, repository, cfg.pr)
 
         repository.done = True
