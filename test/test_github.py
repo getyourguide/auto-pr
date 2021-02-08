@@ -90,7 +90,7 @@ def test_gather_repository_list_filter_name(mock_list_all_repositories: Mock):
     ]
 
     result = gather_repository_list(
-        Mock(), filters=[Filter(FILTER_MODE_ADD, match_name=["^good*"])]
+        Mock(), filters=[Filter(FILTER_MODE_ADD, match_name=["^good.*"])]
     )
 
     assert len(result) == 1
