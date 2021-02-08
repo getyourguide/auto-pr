@@ -58,7 +58,6 @@ def pull(fetch_repo_list: bool, update_repos: bool):
 
     # get repositories
     db_old = workdir.read_database(WORKDIR)
-    repositories = db_old.repositories
 
     if fetch_repo_list:
         click.secho("Gathering repository list...")
@@ -67,10 +66,11 @@ def pull(fetch_repo_list: bool, update_repos: bool):
         # merge existing database with new one
         click.secho("Updating database")
         db_new = database.Database(user=user, repositories=repositories)
-        db_new.merge_into(db_old)
-        workdir.write_database(WORKDIR, db_new)
+        db_old.merge_into(db_new)
+        workdir.write_database(WORKDIR, db_old)
     else:
         click.secho("Not gathering repository list")
+        repositories = db_old.non_removed_repositories()
 
     # pull all repositories
     click.secho("Pulling repositories...")
@@ -100,7 +100,7 @@ def test():
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
 
-    for repository in db.repositories:
+    for repository in db.non_removed_repositories():
         # reset repo and check out branch
         repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
         repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
@@ -122,7 +122,7 @@ def run(pr_delay: Optional[float]):
 
     gh = github.create_github_client(cfg.credentials.api_key)
 
-    for repository in db.repositories:
+    for repository in db.non_removed_repositories():
         if repository.done:
             continue
 
@@ -137,7 +137,9 @@ def run(pr_delay: Optional[float]):
             cfg.pr.message,
         )
 
-        repository.existing_pr = github.create_pr(gh, repository, cfg.pr)
+        if repository.existing_pr is None:
+            repository.existing_pr = github.create_pr(gh, repository, cfg.pr)
+
         repository.done = True
         # persist database to be able to continue from there
         workdir.write_database(WORKDIR, db)
@@ -152,7 +154,8 @@ def run(pr_delay: Optional[float]):
 def restart():
     db = workdir.read_database(WORKDIR)
     db.restart()
-    workdir.write_database(db)
+    workdir.write_database(WORKDIR, db)
+    click.secho("Repositories marked as not done")
 
 
 def _set_all_prs_open(open: bool):

@@ -114,8 +114,12 @@ def commit_and_push_changes(
     branch: str,
     message: str,
 ):
-    click.secho(f"Committing and pushing changes for repository '{repository.name}'")
     repo_dir = repos_dir / repository.name
+    if _git_staged_diff(repo_dir) == "":
+        click.secho(f"Repository '{repository.name}' has no changes")
+        return
+
+    click.secho(f"Committing and pushing changes for repository '{repository.name}'")
     _git_commit(repo_dir, message)
 
     force_push = repository.existing_pr is not None

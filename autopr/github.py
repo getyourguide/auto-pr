@@ -54,7 +54,7 @@ def create_pr(
         pr_template.branch,
         maintainer_can_modify=True,
     )
-    return gh_pr.id
+    return gh_pr.number
 
 
 def set_pr_open(gh: Github, repository: database.Repository, open: bool) -> None:
