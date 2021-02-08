@@ -140,12 +140,12 @@ def _filter_matches(filter: config.Filter, filter_info: FilterInfo):
 
     if filter.match_name is not None:
         if all(
-            not re.match(pattern, filter_info.name) for pattern in filter.match_name
+            not re.fullmatch(pattern, filter_info.name) for pattern in filter.match_name
         ):
             return False
 
     if filter.match_owner is not None:
-        if not re.match(filter.match_owner, filter_info.owner):
+        if not re.fullmatch(filter.match_owner, filter_info.owner):
             return False
 
     return True
