@@ -40,7 +40,6 @@ def init(wd: WorkDir, credentials: config.Credentials):
     # create default config
     if not wd.config_file.exists():
         pr = config.PrTemplate()
-        repositories: List[config.Filter] = []
         cfg = config.Config(credentials=credentials, pr=pr)
         write_config(wd, cfg)
     else:
@@ -92,6 +91,10 @@ def write_database(wd: WorkDir, db: database.Database):
 
 
 def read_database(wd: WorkDir) -> database.Database:
+    if not wd.database_file.exists():
+        db = database.Database()
+        return db
+
     # load database file
     try:
         with open(wd.database_file) as database_file:
