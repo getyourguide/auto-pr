@@ -93,7 +93,6 @@ def write_database(wd: WorkDir, db: database.Database):
 def read_database(wd: WorkDir) -> database.Database:
     if not wd.database_file.exists():
         db = database.Database()
-        write_database(wd, db)
         return db
 
     # load database file
