@@ -49,7 +49,7 @@ def cli(wd_path: str, debug: bool):
 
 @cli.command()
 @click.option(
-    "--api-key", envvar="APR_API_KEY", required=True, help="The github API key to use"
+    "--api-key", envvar="APR_API_KEY", required=True, help="The Github API key to use"
 )
 @click.option(
     "--ssh-key-file",
@@ -57,7 +57,7 @@ def cli(wd_path: str, debug: bool):
         exists=True, file_okay=True, dir_okay=False, writable=False, readable=True
     ),
     required=True,
-    help="The SSH key to use when pushing to github",
+    help="Path to the SSH key to use when pushing to Github",
 )
 def init(api_key: str, ssh_key_file: str):
     """ Initialise the configuration and database. """
