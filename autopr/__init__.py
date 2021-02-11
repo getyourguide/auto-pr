@@ -135,10 +135,10 @@ def test():
 
 @cli.command()
 @click.option(
-    "--delay",
+    "--push-delay",
     type=click.FLOAT,
     default=None,
-    help="Delay in seconds between updating repositories",
+    help="Delay in seconds between pushing changes to repositories",
 )
 def run(delay: Optional[float]):
     """ Perform execution of update and create pull requests. """
@@ -171,7 +171,7 @@ def run(delay: Optional[float]):
         workdir.write_database(WORKDIR, db)
         click.secho(f"Done updating repository '{repository.name}'")
 
-        if delay is not None:
+        if updated and delay is not None:
             click.secho(f"Sleeping for {delay} seconds...")
             time.sleep(delay)
 
