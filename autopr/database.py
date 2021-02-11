@@ -53,6 +53,7 @@ class Database:
             if (repository.owner, repository.name) not in existing_repos:
                 self.repositories.append(repository)
 
+# mark repositories that are gone as removed
         new_repos = set(
             (repository.owner, repository.name) for repository in from_db.repositories
         )
