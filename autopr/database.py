@@ -45,11 +45,12 @@ class Database:
         return self.user is None
 
     def merge_into(self, from_db: "Database") -> None:
+        self.user = from_db.user
+
+        # add repositories that are new
         existing_repos = set(
             (repository.owner, repository.name) for repository in self.repositories
         )
-
-        # add repositories that are new
         for repository in from_db.repositories:
             if (repository.owner, repository.name) not in existing_repos:
                 self.repositories.append(repository)
