@@ -49,12 +49,12 @@ class Database:
             (repository.owner, repository.name) for repository in self.repositories
         )
 
-# add repositories that are new
+        # add repositories that are new
         for repository in from_db.repositories:
             if (repository.owner, repository.name) not in existing_repos:
                 self.repositories.append(repository)
 
-# mark repositories that are gone as removed
+        # mark repositories that are gone as removed
         new_repos = set(
             (repository.owner, repository.name) for repository in from_db.repositories
         )
