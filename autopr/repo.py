@@ -182,7 +182,7 @@ def _git_reset_hard(repo_dir: Path) -> None:
 
 
 def _git_pull(repo_dir: Path) -> None:
-    run_cmd(["git", "-C", f"{repo_dir}", "pull"])
+    run_cmd(["git", "-C", f"{repo_dir}", "pull", "--depth", "1"])
 
 
 def _git_config(repo_dir: Path, key: str, value: str) -> None:

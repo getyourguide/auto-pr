@@ -8,7 +8,7 @@ from autopr import workdir, config, github, repo, database
 
 __version__ = "0.1.0"
 
-from autopr.util import CliException, set_debug
+from autopr.util import CliException, set_debug, error
 
 WORKDIR: workdir.WorkDir
 
@@ -121,10 +121,13 @@ def test():
     _ensure_set_up(cfg, db)
 
     for repository in db.non_removed_repositories():
-        # reset repo and check out branch
-        repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
-        repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
-        diff = repo.get_diff(WORKDIR.repos_dir, repository)
+        try:
+            # reset repo and check out branch
+            repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
+            repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
+            diff = repo.get_diff(WORKDIR.repos_dir, repository)
+        except CliException as e:
+            error(f"Error: {e}")
 
         click.secho(f"Diff for repository '{repository.name}':\n{diff}")
         if not click.confirm("Continue?"):
@@ -152,16 +155,21 @@ def run(push_delay: Optional[float]):
         if repository.done:
             continue
 
-        # reset repo and check out branch
-        repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
-        repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
-        updated = repo.commit_and_push_changes(
-            Path(cfg.credentials.ssh_key_file),
-            WORKDIR.repos_dir,
-            repository,
-            cfg.pr.branch,
-            cfg.pr.message,
-        )
+        updated = False
+
+        try:
+            # reset repo and check out branch
+            repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
+            repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
+            updated = repo.commit_and_push_changes(
+                Path(cfg.credentials.ssh_key_file),
+                WORKDIR.repos_dir,
+                repository,
+                cfg.pr.branch,
+                cfg.pr.message,
+            )
+        except CliException as e:
+            error(f"Error: {e}")
 
         if updated and repository.existing_pr is None:
             repository.existing_pr = github.create_pr(gh, repository, cfg.pr)
