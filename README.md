@@ -56,7 +56,10 @@ You can define the list of repositories to pull and build into the database to u
 
 ###  Update Command
 
-TBD
+This is the list containing the command to be executed along with the arguments passed to it. It will be executed from
+the root of each repository that is processed.
+
+If an error occurs during the execution it will be displayed in the output but will not halt the execution.
 
 ### Pull
 
@@ -86,6 +89,6 @@ For sensitive security matters please contact [security@getyourguide.com](mailto
 
 ## Legal
 
-Copyright 2020 GetYourGuide GmbH.
+Copyright 2021 GetYourGuide GmbH.
 
 auto-pr is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full text.
