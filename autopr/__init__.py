@@ -186,27 +186,30 @@ def run(push_delay: Optional[float]):
 
 @cli.command()
 def restart():
+    """ Mark all mapped repositories as not done. """
     db = workdir.read_database(WORKDIR)
     db.restart()
     workdir.write_database(WORKDIR, db)
     click.secho("Repositories marked as not done")
 
 
-def _set_all_prs_open(open: bool):
+def _set_all_prs_open(is_open: bool):
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
 
     for repository in db.repositories:
         if repository.existing_pr is not None:
-            github.set_pr_open(gh, repository, open)
+            github.set_pr_state(gh, repository, is_open)
 
 
 @cli.command()
 def close():
+    """ Close all open PRs """
     _set_all_prs_open(False)
 
 
 @cli.command()
 def reopen():
+    """ Reopen all un-merged PRs"""
     _set_all_prs_open(True)
