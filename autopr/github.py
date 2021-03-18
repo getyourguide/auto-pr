@@ -132,7 +132,7 @@ def _apply_filters(
                 if not _filter_matches(filter, filter_info)
             }
         else:
-            raise CliException(f'Unsupported filter.mode passed: {filter.mode}')
+            raise CliException(f"Unsupported filter.mode passed: {filter.mode}")
 
     return [repository for _filter_info, repository in selected_repositories.values()]
 

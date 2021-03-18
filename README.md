@@ -71,7 +71,7 @@ After you have configured the project you can now pull the repositories down tha
 auto-pr pull
 ```
 
-This will generate a `db.json` file within your workdir containing a list of mapped repositories and their state. 
+This will generate a `db.json` file within your workdir containing a list of mapped repositories and their state.
 
 This command can be run multiple times, if there are new matching repositories found they will be merged into the existing database.
 
