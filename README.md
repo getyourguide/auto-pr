@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/getyourguide/auto-pr/workflows/CI/badge.svg)
 
-A command line tool to perform bulk updates across multiple repositories.
+A command line tool to perform bulk updates across multiple Github repositories.
 
 ## How to install
 
@@ -14,13 +14,13 @@ pip install auto-pr
 
 ### Init
 
-First you need to initialise the project folder so run the `init` within a new folder.
+First initialise the project directory by running the `init` command within an empty directory.
 
 ```bash
 auto-pr init --api-key=<github_token> --ssh-key-file=<path-to-ssh-key>
 ```
 
-Where `<github_token>` is a Github personal token which has `repo` and `user:user:email` scope.
+Where `<github_token>` is a Github [personal access token](https://github.com/settings/tokens) which has `repo` and `user:user:email` scope.
 
 Next modify the generated `config.yaml` file with your desired configurations.
 
@@ -54,6 +54,8 @@ You can define the list of repositories to pull and build into the database to u
 - `match_owner` (optional) - the owner or user to pull
 - `match_name` (optional) - a list of regular expressions to match against to pull
 
+The flags of the filter rules are optional not specifying will run the command on all repositories that the token has access too.
+
 ###  Update Command
 
 This is the list containing the command to be executed along with the arguments passed to it. It will be executed from
@@ -63,25 +65,29 @@ If an error occurs during the execution it will be displayed in the output but w
 
 ### Pull
 
-Once you have configured the project you can now pull the repositories down that match your configuration.
+After you have configured the project you can now pull the repositories down that match your rules.
 
 ```bash
 auto-pr pull
 ```
 
+This will generate a `db.json` file within your workdir containing a list of mapped repositories and their state. 
+
+This command can be run multiple times, if there are new matching repositories found they will be merged into the existing database.
+
 ### Test
 
-Once the `pull` command has finished building the repo structure and DB containing the state you can now run test to check what the changes that will be made by the script will yield.
+Once the `pull` command has finished setting up the work directory you can now run test to check what the changes that will be made by the script will yield.
 
 ### Run
 
-Once you're confident with the changes output from the `test` command you can finally excute `run`
+When you're confident with the changes output from the `test` command you can finally execute `run`.
 
 ```bash
 auto-pr run
 ```
 
-This will perform the changes to a branch on the locally cloned repo and push the branch upstream with the information you provided within `config.yaml`.
+This will perform the changes to a branch on the locally cloned repository and push the branch upstream with the information you provided within `config.yaml`.
 
 ## Security
 

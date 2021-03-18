@@ -57,15 +57,21 @@ def create_pr(
     return gh_pr.number
 
 
-def set_pr_open(gh: Github, repository: database.Repository, open: bool) -> None:
+def set_pr_state(gh: Github, repository: database.Repository, open_state: bool) -> None:
     if repository.existing_pr is None:
         raise ValueError()
 
     gh_repo = gh.get_repo(repository.name)
     gh_pr = gh_repo.get_pull(repository.existing_pr)
 
-    status = "open" if open else "closed"
-    gh_pr.edit(status=status)
+    if open_state and gh_pr.merged:
+        return
+
+    if not open_state and not gh_pr.merged:
+        return
+
+    state_value = "open" if open_state else "closed"
+    gh_pr.edit(state=state_value)
 
 
 def gather_repository_list(
@@ -119,12 +125,14 @@ def _apply_filters(
                 if _filter_matches(filter, filter_info)
             }
             selected_repositories.update(added_repositories)
-        if filter.mode == config.FILTER_MODE_REMOVE:
+        elif filter.mode == config.FILTER_MODE_REMOVE:
             selected_repositories = {
                 (repository.owner, repository.name): (filter_info, repository)
                 for filter_info, repository in selected_repositories.values()
                 if not _filter_matches(filter, filter_info)
             }
+        else:
+            raise CliException(f'Unsupported filter.mode passed: {filter.mode}')
 
     return [repository for _filter_info, repository in selected_repositories.values()]
 
