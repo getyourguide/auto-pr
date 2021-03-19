@@ -19,8 +19,8 @@ class FilterInfo:
 
 
 class PullRequestState(Enum):
-    OPEN = 'open'
-    CLOSED = 'closed'
+    OPEN = "open"
+    CLOSED = "closed"
 
 
 def create_github_client(api_key: str) -> Github:
