@@ -48,17 +48,24 @@ def create_pr(
     gh: Github, repository: database.Repository, pr_template: config.PrTemplate
 ) -> PullRequest:
     gh_repo = gh.get_repo(repository.full_name)
-    gh_pr = gh_repo.create_pull(
+    pull_request = gh_repo.create_pull(
         pr_template.title,
         pr_template.body,
         repository.default_branch,
         pr_template.branch,
         maintainer_can_modify=True,
     )
-    return gh_pr
+    return pull_request
 
 
-def set_pull_request_state(gh: Github, repository: database.Repository, open_state: bool):
+def get_pull_request(gh: Github, repository: database.Repository) -> PullRequest:
+    gh_repo = gh.get_repo(repository.full_name)
+    return gh_repo.get_pull(repository.existing_pr)
+
+
+def set_pull_request_state(
+    gh: Github, repository: database.Repository, open_state: bool
+):
     if repository.existing_pr is None:
         raise ValueError(f"No existing pull request for {repository.name}")
 
@@ -66,7 +73,9 @@ def set_pull_request_state(gh: Github, repository: database.Repository, open_sta
     pull_request = gh_repo.get_pull(repository.existing_pr)
 
     if pull_request.merged:
-        raise ValueError(f"Pull request already merged for {repository.name} ({pull_request.html_url})")
+        raise ValueError(
+            f"Pull request already merged for {repository.name} ({pull_request.html_url})"
+        )
 
     state_value = "open" if open_state else "closed"
     pull_request.edit(state=state_value)

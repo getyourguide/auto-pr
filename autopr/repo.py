@@ -19,7 +19,7 @@ def pull_repositories(
 ):
     for repository in repositories:
         try:
-            _pull_repository(
+            pull_repository(
                 user,
                 ssh_key_file,
                 repos_dir,
@@ -30,17 +30,17 @@ def pull_repositories(
             error(f"Error: {e}")
 
 
-def _pull_repository(
+def pull_repository(
     user: database.GitUser,
     ssh_key_file: Path,
     repos_dir: Path,
     repository: database.Repository,
-    update_repo: bool,
+    update_repo_if_exists: bool,
 ) -> None:
     repo_dir = repos_dir / repository.name
     repo_exists = repo_dir.exists()
 
-    if not update_repo and repo_exists:
+    if not update_repo_if_exists and repo_exists:
         click.secho(f"Repository already exists '{repository.name}':")
         return
 
@@ -116,10 +116,10 @@ def commit_and_push_changes(
 ) -> bool:
     repo_dir = repos_dir / repository.name
     if _git_staged_diff(repo_dir) == "":
-        click.secho(f"Repository '{repository.name}' has no changes")
+        click.secho(f"  - No changes")
         return False
 
-    click.secho(f"Committing and pushing changes for repository '{repository.name}'")
+    click.secho(f"  - Committing and pushing changes")
     _git_commit(repo_dir, message)
 
     force_push = repository.existing_pr is not None

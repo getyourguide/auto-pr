@@ -8,6 +8,8 @@ from autopr import workdir, config, github, repo, database
 
 __version__ = "0.1.0"
 
+from autopr.database import Repository
+
 from autopr.util import CliException, set_debug, error
 
 WORKDIR: workdir.WorkDir
@@ -21,6 +23,11 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
         raise CliException(
             "No update command found. Please set an update command in the config."
         )
+
+
+def _mark_repository_as_done(repository: Repository, db: database.Database):
+    repository.done = True
+    workdir.write_database(WORKDIR, db)
 
 
 @click.group("auto-pr")
@@ -148,8 +155,11 @@ def run(push_delay: Optional[float]):
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
-
     gh = github.create_github_client(cfg.credentials.api_key)
+    if db.user is None:
+        user = github.get_user(gh)
+        db.user = user
+        workdir.write_database(WORKDIR, db)
 
     for repository in db.non_removed_repositories():
         if repository.done:
@@ -159,6 +169,13 @@ def run(push_delay: Optional[float]):
 
         try:
             # reset repo and check out branch
+            repo.pull_repository(
+                db.user,
+                Path(cfg.credentials.ssh_key_file),
+                WORKDIR.repos_dir,
+                repository,
+                True,
+            )
             repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
             repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
             updated = repo.commit_and_push_changes(
@@ -171,14 +188,25 @@ def run(push_delay: Optional[float]):
         except CliException as e:
             error(f"Error: {e}")
 
-        if updated and repository.existing_pr is None:
-            pull_request = github.create_pr(gh, repository, cfg.pr)
-            repository.existing_pr = pull_request.number
-            click.secho(f"Pull request: {pull_request.url}")
+        if not updated:
+            click.secho(f"  - Nothing updated")
+            _mark_repository_as_done(repository, db)
+            continue
 
-        repository.done = True
+        if repository.existing_pr:
+            pull_request = github.get_pull_request(gh, repository)
+            if not pull_request.merged and pull_request.state != "closed":
+                click.secho(f"  - Pull request: {pull_request.html_url}")
+                _mark_repository_as_done(repository, db)
+                continue
+
+        pull_request = github.create_pr(gh, repository, cfg.pr)
+        repository.existing_pr = pull_request.number
+
+        click.secho(f"  - Pull request: {pull_request.html_url}")
+
         # persist database to be able to continue from there
-        workdir.write_database(WORKDIR, db)
+        _mark_repository_as_done(repository, db)
         click.secho(f"Done updating repository '{repository.name}'")
 
         if updated and push_delay is not None:
@@ -204,7 +232,9 @@ def _set_all_pull_requests_state(is_open: bool):
         if repository.existing_pr is not None:
             try:
                 github.set_pull_request_state(gh, repository, is_open)
-                click.secho(f"Updated {repository.name} pull request state to {'open' if is_open else 'closed'}")
+                click.secho(
+                    f"Updated {repository.name} pull request state to {'open' if is_open else 'closed'}"
+                )
             except ValueError as e:
                 click.secho(f"{e}")
 
