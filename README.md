@@ -93,17 +93,7 @@ auto-pr run
 
 This will perform the changes to a branch on the locally cloned repository and push the branch upstream with the information you provided within `config.yaml`.
 
-### Close
-
-Closes all open pull requests that have been created.
-
-### Reopen
-
-Reopens all non-merged pull requests that were closed.
-
-### Restart
-
-Reset the done state in the database to enable updating already processed repositories again.
+See `--help` for more information about other commands and their  usage.
 
 ## Security
 
