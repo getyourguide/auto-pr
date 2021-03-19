@@ -32,7 +32,7 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
     type=click.Path(
         exists=False, file_okay=False, dir_okay=True, writable=True, readable=True
     ),
-    help="The working directory to store configuration and repositories",
+    help="Working directory to store configuration and repositories",
 )
 @click.option(
     "--debug/--no-debug",
@@ -60,7 +60,7 @@ def cli(wd_path: str, debug: bool):
     help="Path to the SSH key to use when pushing to Github",
 )
 def init(api_key: str, ssh_key_file: str):
-    """ Initialise the configuration and database. """
+    """ Initialise configuration and database """
     credentials = config.Credentials(api_key=api_key, ssh_key_file=ssh_key_file)
     workdir.init(WORKDIR, credentials)
 
@@ -115,7 +115,7 @@ def pull(fetch_repo_list: bool, update_repos: bool):
 
 @cli.command()
 def test():
-    """ Check what expected diff will be for command execution. """
+    """ Check what expected diff will be for command execution """
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
@@ -144,7 +144,7 @@ def test():
     help="Delay in seconds between pushing changes to repositories",
 )
 def run(push_delay: Optional[float]):
-    """ Perform execution of update and create pull requests. """
+    """ Run update logic and create pull requests if changes made """
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
@@ -186,14 +186,14 @@ def run(push_delay: Optional[float]):
 
 @cli.command()
 def restart():
-    """ Mark all mapped repositories as not done. """
+    """ Mark all mapped repositories as not done """
     db = workdir.read_database(WORKDIR)
     db.restart()
     workdir.write_database(WORKDIR, db)
     click.secho("Repositories marked as not done")
 
 
-def _set_all_prs_open(is_open: bool):
+def _set_all_pull_requests_open(is_open: bool):
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
@@ -205,11 +205,11 @@ def _set_all_prs_open(is_open: bool):
 
 @cli.command()
 def close():
-    """ Close all open PRs """
-    _set_all_prs_open(False)
+    """ Close all open pull requests """
+    _set_all_pull_requests_open(False)
 
 
 @cli.command()
 def reopen():
-    """ Reopen all un-merged PRs"""
-    _set_all_prs_open(True)
+    """ Reopen all un-merged pull requests """
+    _set_all_pull_requests_open(True)
