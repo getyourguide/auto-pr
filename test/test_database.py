@@ -14,12 +14,12 @@ def test_needs_pulling_not_empty():
     assert not db.needs_pulling()
 
 
-def test_restart_empty():
+def test_reset_empty():
     db = Database(user=Mock(), repositories=[])
-    db.restart()
+    db.reset()
 
 
-def test_restart_non_empty():
+def test_reset_non_empty():
     repo_first = get_repository("first")
     repo_first.done = True
     repo_second = get_repository("second")
@@ -35,7 +35,7 @@ def test_restart_non_empty():
     assert db.repositories[0].done
     assert not db.repositories[1].done
 
-    db.restart()
+    db.reset()
 
     assert not db.repositories[0].done
     assert not db.repositories[1].done
