@@ -1,8 +1,9 @@
 import re
 from dataclasses import dataclass
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, NoReturn
 
 from github import Github
+from github.PullRequest import PullRequest
 
 from autopr import database, config
 from autopr.util import CliException
@@ -45,7 +46,7 @@ def get_user(gh: Github) -> database.GitUser:
 
 def create_pr(
     gh: Github, repository: database.Repository, pr_template: config.PrTemplate
-) -> int:
+) -> PullRequest:
     gh_repo = gh.get_repo(repository.full_name)
     gh_pr = gh_repo.create_pull(
         pr_template.title,
@@ -54,24 +55,21 @@ def create_pr(
         pr_template.branch,
         maintainer_can_modify=True,
     )
-    return gh_pr.number
+    return gh_pr
 
 
-def set_pr_state(gh: Github, repository: database.Repository, open_state: bool) -> None:
+def set_pull_request_state(gh: Github, repository: database.Repository, open_state: bool):
     if repository.existing_pr is None:
-        raise ValueError()
+        raise ValueError(f"No existing pull request for {repository.name}")
 
-    gh_repo = gh.get_repo(repository.name)
-    gh_pr = gh_repo.get_pull(repository.existing_pr)
+    gh_repo = gh.get_repo(repository.full_name)
+    pull_request = gh_repo.get_pull(repository.existing_pr)
 
-    if open_state and gh_pr.merged:
-        return
-
-    if not open_state and not gh_pr.merged:
-        return
+    if pull_request.merged:
+        raise ValueError(f"Pull request already merged for {repository.name} ({pull_request.html_url})")
 
     state_value = "open" if open_state else "closed"
-    gh_pr.edit(state=state_value)
+    pull_request.edit(state=state_value)
 
 
 def gather_repository_list(
