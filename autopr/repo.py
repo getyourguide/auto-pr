@@ -1,13 +1,23 @@
 import os
 import shutil
 import subprocess
+import time
 from pathlib import Path
 from typing import List, Optional, Dict
 
 import click
+from github import Github
 
-from autopr import database, util
+from autopr import (
+    database,
+    util,
+    config,
+    github,
+)
+
+from autopr.database import Repository
 from autopr.util import CliException, error
+from autopr.workdir import WorkDir, write_database
 
 
 def pull_repositories(
@@ -208,3 +218,67 @@ def _git_push(ssh_key_file: Path, repo_dir: Path, branch: str, force: bool) -> N
         cmd.append("--force")
 
     run_cmd(cmd, additional_env={"GIT_SSH_COMMAND": git_ssh_command})
+
+
+def run_update(
+    repository: Repository,
+    db: database.Database,
+    cfg: config.Config,
+    gh: Github,
+    workdir: WorkDir,
+    push_delay: Optional[float],
+):
+    if db.user is None:
+        raise Exception(
+            "db.user is None - please report at github.com/getyourguide/auto-pr"
+        )
+
+    pull_repository(
+        db.user,
+        Path(cfg.credentials.ssh_key_file),
+        workdir.repos_dir,
+        repository,
+        True,
+    )
+    # reset repo and check out branch
+    prepare_repository(workdir.repos_dir, repository, cfg.pr.branch)
+    run_update_command(workdir.repos_dir, repository, cfg.update_command)
+    updated = commit_and_push_changes(
+        Path(cfg.credentials.ssh_key_file),
+        workdir.repos_dir,
+        repository,
+        cfg.pr.branch,
+        cfg.pr.message,
+    )
+
+    if not updated:
+        click.secho(f"  - Nothing updated")
+        _mark_repository_as_done(repository, db, workdir)
+        return
+
+    if repository.existing_pr:
+        pull_request = github.get_pull_request(gh, repository)
+        if not pull_request.merged and pull_request.state != "closed":
+            click.secho(f"  - Pull request: {pull_request.html_url}")
+            _mark_repository_as_done(repository, db, workdir)
+            return
+
+    pull_request = github.create_pr(gh, repository, cfg.pr)
+    repository.existing_pr = pull_request.number
+
+    click.secho(f"  - Pull request: {pull_request.html_url}")
+
+    # persist database to be able to continue from there
+    _mark_repository_as_done(repository, db, workdir)
+    click.secho(f"Done updating repository '{repository.name}'")
+
+    if updated and push_delay is not None:
+        click.secho(f"Sleeping for {push_delay} seconds...")
+        time.sleep(push_delay)
+
+
+def _mark_repository_as_done(
+    repository: Repository, db: database.Database, workdir: WorkDir
+):
+    repository.done = True
+    write_database(workdir, db)

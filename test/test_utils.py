@@ -3,7 +3,7 @@ from typing import Optional, List
 
 from click.testing import CliRunner, Result
 
-from autopr import cli, database, config, workdir, repo
+from autopr import cli, database, config, workdir
 from autopr.database import Repository
 
 

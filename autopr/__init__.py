@@ -1,4 +1,3 @@
-import time
 from pathlib import Path
 from typing import Optional
 
@@ -23,11 +22,6 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
         raise CliException(
             "No update command found. Please set an update command in the config."
         )
-
-
-def _mark_repository_as_done(repository: Repository, db: database.Database):
-    repository.done = True
-    workdir.write_database(WORKDIR, db)
 
 
 @click.group("auto-pr")
@@ -163,69 +157,22 @@ def run(push_delay: Optional[float]):
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
     gh = github.create_github_client(cfg.credentials.api_key)
-    if db.user is None:
-        user = github.get_user(gh)
-        db.user = user
-        workdir.write_database(WORKDIR, db)
 
     for repository in db.non_removed_repositories():
         if repository.done:
             continue
 
-        updated = False
-
         try:
-            repo.pull_repository(
-                db.user,
-                Path(cfg.credentials.ssh_key_file),
-                WORKDIR.repos_dir,
-                repository,
-                True,
-            )
-            # reset repo and check out branch
-            repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
-            repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
-            updated = repo.commit_and_push_changes(
-                Path(cfg.credentials.ssh_key_file),
-                WORKDIR.repos_dir,
-                repository,
-                cfg.pr.branch,
-                cfg.pr.message,
-            )
+            repo.run_update(repository, db, cfg, gh, WORKDIR, push_delay)
         except CliException as e:
             error(f"Error: {e}")
 
-        if not updated:
-            click.secho(f"  - Nothing updated")
-            _mark_repository_as_done(repository, db)
-            continue
-
-        if repository.existing_pr:
-            pull_request = github.get_pull_request(gh, repository)
-            if not pull_request.merged and pull_request.state != "closed":
-                click.secho(f"  - Pull request: {pull_request.html_url}")
-                _mark_repository_as_done(repository, db)
-                continue
-
-        pull_request = github.create_pr(gh, repository, cfg.pr)
-        repository.existing_pr = pull_request.number
-
-        click.secho(f"  - Pull request: {pull_request.html_url}")
-
-        # persist database to be able to continue from there
-        _mark_repository_as_done(repository, db)
-        click.secho(f"Done updating repository '{repository.name}'")
-
-        if updated and push_delay is not None:
-            click.secho(f"Sleeping for {push_delay} seconds...")
-            time.sleep(push_delay)
-
 
 @cli.command()
-def restart():
+def reset():
     """ Mark all mapped repositories as not done """
     db = workdir.read_database(WORKDIR)
-    db.restart()
+    db.reset()
     workdir.write_database(WORKDIR, db)
     click.secho("Repositories marked as not done")
 
