@@ -129,6 +129,13 @@ def test():
 
     for repository in db.non_removed_repositories():
         try:
+            repo.pull_repository(
+                db.user,
+                Path(cfg.credentials.ssh_key_file),
+                WORKDIR.repos_dir,
+                repository,
+                True,
+            )
             # reset repo and check out branch
             repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
             repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
@@ -168,7 +175,6 @@ def run(push_delay: Optional[float]):
         updated = False
 
         try:
-            # reset repo and check out branch
             repo.pull_repository(
                 db.user,
                 Path(cfg.credentials.ssh_key_file),
@@ -176,6 +182,7 @@ def run(push_delay: Optional[float]):
                 repository,
                 True,
             )
+            # reset repo and check out branch
             repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
             repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
             updated = repo.commit_and_push_changes(
