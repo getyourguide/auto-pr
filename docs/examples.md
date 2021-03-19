@@ -2,7 +2,7 @@
 
 ## Commands
 
-Here are some example commands that can be used as a reference of the power of the tool
+Here are some example commands that can be used as a reference when writing your own.
 
 ### Run Python script within virtualenv
 
