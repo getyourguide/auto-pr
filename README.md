@@ -12,6 +12,8 @@ pip install auto-pr
 
 ## Usage
 
+[![Usage](img/auto-pr.svg)](img/auto-pr.svg))
+
 ### Init
 
 First initialise the project directory by running the `init` command within an empty directory.
@@ -63,6 +65,8 @@ the root of each repository that is processed.
 
 If an error occurs during the execution it will be displayed in the output but will not halt the execution.
 
+See [example commands](docs/examples.md#commands)
+
 ### Pull
 
 After you have configured the project you can now pull the repositories down that match your rules.
@@ -88,6 +92,8 @@ auto-pr run
 ```
 
 This will perform the changes to a branch on the locally cloned repository and push the branch upstream with the information you provided within `config.yaml`.
+
+See `--help` for more information about other commands and their  usage.
 
 ## Security
 
