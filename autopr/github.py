@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from enum import Enum
 from typing import List, Tuple, Dict, NoReturn
 
 from github import Github
@@ -15,6 +16,11 @@ class FilterInfo:
     name: str
     public: bool
     archived: bool
+
+
+class PullRequestState(Enum):
+    OPEN = 'open'
+    CLOSED = 'closed'
 
 
 def create_github_client(api_key: str) -> Github:
@@ -64,7 +70,7 @@ def get_pull_request(gh: Github, repository: database.Repository) -> PullRequest
 
 
 def set_pull_request_state(
-    gh: Github, repository: database.Repository, open_state: bool
+    gh: Github, repository: database.Repository, state: PullRequestState
 ):
     if repository.existing_pr is None:
         raise ValueError(f"No existing pull request for {repository.name}")
@@ -77,8 +83,7 @@ def set_pull_request_state(
             f"Pull request already merged for {repository.name} ({pull_request.html_url})"
         )
 
-    state_value = "open" if open_state else "closed"
-    pull_request.edit(state=state_value)
+    pull_request.edit(state=state.value)
 
 
 def gather_repository_list(

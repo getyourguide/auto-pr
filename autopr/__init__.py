@@ -177,7 +177,7 @@ def reset():
     click.secho("Repositories marked as not done")
 
 
-def _set_all_pull_requests_state(is_open: bool):
+def _set_all_pull_requests_state(state: github.PullRequestState):
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
@@ -185,9 +185,9 @@ def _set_all_pull_requests_state(is_open: bool):
     for repository in db.repositories:
         if repository.existing_pr is not None:
             try:
-                github.set_pull_request_state(gh, repository, is_open)
+                github.set_pull_request_state(gh, repository, state)
                 click.secho(
-                    f"Updated {repository.name} pull request state to {'open' if is_open else 'closed'}"
+                    f"Updated {repository.name} pull request state to {state.value}"
                 )
             except ValueError as e:
                 click.secho(f"{e}")
@@ -196,12 +196,12 @@ def _set_all_pull_requests_state(is_open: bool):
 @cli.command()
 def close():
     """ Close all open pull requests """
-    _set_all_pull_requests_state(False)
+    _set_all_pull_requests_state(github.PullRequestState.CLOSED)
     click.secho("Finished closing all open pull requests")
 
 
 @cli.command()
 def reopen():
     """ Reopen all un-merged pull requests """
-    _set_all_pull_requests_state(True)
+    _set_all_pull_requests_state(github.PullRequestState.OPEN)
     click.secho("Finished reopening all closed unmerged pull requests")
