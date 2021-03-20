@@ -4,4 +4,4 @@ When contributing to this repository, we encourage to first discuss the change y
 
 - Aim to keep pull requests scoped to one feature to ease review
 - Add tests to verify that the changes works (if possible)
-- Include or update documentation for new or changed features 
+- Include or update documentation for new or changed features
