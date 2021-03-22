@@ -12,7 +12,7 @@ pip install auto-pr
 
 ## Usage
 
-[![Usage](img/auto-pr.svg)](img/auto-pr.svg)
+[![Usage](https://github.com/getyourguide/auto-pr/raw/master/img/auto-pr.svg)](https://github.com/getyourguide/auto-pr/raw/master/img/auto-pr.svg)
 
 ### Init
 

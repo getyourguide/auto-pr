@@ -30,7 +30,7 @@ setup(
     python_requires=">=3.8",
     entry_points={
         "console_scripts": [
-            "auto-pr = autopr",
+            "auto-pr = autopr:main",
         ],
     },
 )
