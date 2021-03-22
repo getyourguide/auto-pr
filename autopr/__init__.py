@@ -5,7 +5,7 @@ import click
 
 from autopr import workdir, config, github, repo, database
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from autopr.database import Repository
 
