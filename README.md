@@ -1,10 +1,18 @@
 # auto-pr
 
 ![CI](https://github.com/getyourguide/auto-pr/workflows/CI/badge.svg)
+[![PyPI version](https://badge.fury.io/py/auto-pr.svg)](https://badge.fury.io/py/tell-me-your-secrets)
 
 A command line tool to perform bulk updates across multiple Github repositories.
 
 ## How to install
+
+With [pipx](https://pipxproject.github.io/pipx/) (recommended):
+
+```bash
+pipx install auto-pr
+```
+With pip:
 
 ```bash
 pip install auto-pr
