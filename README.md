@@ -1,7 +1,7 @@
 # auto-pr
 
 ![CI](https://github.com/getyourguide/auto-pr/workflows/CI/badge.svg)
-[![PyPI version](https://badge.fury.io/py/auto-pr.svg)](https://badge.fury.io/py/tell-me-your-secrets)
+[![PyPI version](https://badge.fury.io/py/auto-pr.svg)](https://badge.fury.io/py/auto-pr)
 
 A command line tool to perform bulk updates across multiple Github repositories.
 
