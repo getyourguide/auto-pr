@@ -12,7 +12,7 @@ class Repository:
     default_branch: str
     existing_pr: Optional[int] = None
     removed: bool = False  # true if the repo is not in the config's filters anymore, but still has a PR open
-    done: bool = False  # true if a PR has been opened and 'restart' was not called
+    done: bool = False  # true if a PR has been opened and 'reset' was not called
 
     @property
     def full_name(self) -> str:
@@ -63,7 +63,7 @@ class Database:
             if (repository.owner, repository.name) not in new_repos:
                 repository.removed = True
 
-    def restart(self) -> None:
+    def reset(self) -> None:
         for repository in self.repositories:
             repository.done = False
 

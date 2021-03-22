@@ -1,4 +1,3 @@
-import time
 from pathlib import Path
 from typing import Optional
 
@@ -7,6 +6,8 @@ import click
 from autopr import workdir, config, github, repo, database
 
 __version__ = "0.1.0"
+
+from autopr.database import Repository
 
 from autopr.util import CliException, set_debug, error
 
@@ -122,6 +123,13 @@ def test():
 
     for repository in db.non_removed_repositories():
         try:
+            repo.pull_repository(
+                db.user,
+                Path(cfg.credentials.ssh_key_file),
+                WORKDIR.repos_dir,
+                repository,
+                True,
+            )
             # reset repo and check out branch
             repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
             repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
@@ -148,68 +156,52 @@ def run(push_delay: Optional[float]):
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
-
     gh = github.create_github_client(cfg.credentials.api_key)
 
     for repository in db.non_removed_repositories():
         if repository.done:
             continue
 
-        updated = False
-
         try:
-            # reset repo and check out branch
-            repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
-            repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
-            updated = repo.commit_and_push_changes(
-                Path(cfg.credentials.ssh_key_file),
-                WORKDIR.repos_dir,
-                repository,
-                cfg.pr.branch,
-                cfg.pr.message,
-            )
+            repo.run_update(repository, db, cfg, gh, WORKDIR, push_delay)
         except CliException as e:
             error(f"Error: {e}")
 
-        if updated and repository.existing_pr is None:
-            repository.existing_pr = github.create_pr(gh, repository, cfg.pr)
-
-        repository.done = True
-        # persist database to be able to continue from there
-        workdir.write_database(WORKDIR, db)
-        click.secho(f"Done updating repository '{repository.name}'")
-
-        if updated and push_delay is not None:
-            click.secho(f"Sleeping for {push_delay} seconds...")
-            time.sleep(push_delay)
-
 
 @cli.command()
-def restart():
+def reset():
     """ Mark all mapped repositories as not done """
     db = workdir.read_database(WORKDIR)
-    db.restart()
+    db.reset()
     workdir.write_database(WORKDIR, db)
     click.secho("Repositories marked as not done")
 
 
-def _set_all_pull_requests_open(is_open: bool):
+def _set_all_pull_requests_state(state: github.PullRequestState):
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
 
     for repository in db.repositories:
         if repository.existing_pr is not None:
-            github.set_pr_state(gh, repository, is_open)
+            try:
+                github.set_pull_request_state(gh, repository, state)
+                click.secho(
+                    f"Updated {repository.name} pull request state to {state.value}"
+                )
+            except ValueError as e:
+                click.secho(f"{e}")
 
 
 @cli.command()
 def close():
     """ Close all open pull requests """
-    _set_all_pull_requests_open(False)
+    _set_all_pull_requests_state(github.PullRequestState.CLOSED)
+    click.secho("Finished closing all open pull requests")
 
 
 @cli.command()
 def reopen():
     """ Reopen all un-merged pull requests """
-    _set_all_pull_requests_open(True)
+    _set_all_pull_requests_state(github.PullRequestState.OPEN)
+    click.secho("Finished reopening all closed unmerged pull requests")

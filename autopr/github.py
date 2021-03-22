@@ -1,8 +1,10 @@
 import re
 from dataclasses import dataclass
-from typing import List, Tuple, Dict
+from enum import Enum
+from typing import List, Tuple, Dict, NoReturn
 
 from github import Github
+from github.PullRequest import PullRequest
 
 from autopr import database, config
 from autopr.util import CliException
@@ -14,6 +16,11 @@ class FilterInfo:
     name: str
     public: bool
     archived: bool
+
+
+class PullRequestState(Enum):
+    OPEN = "open"
+    CLOSED = "closed"
 
 
 def create_github_client(api_key: str) -> Github:
@@ -45,33 +52,38 @@ def get_user(gh: Github) -> database.GitUser:
 
 def create_pr(
     gh: Github, repository: database.Repository, pr_template: config.PrTemplate
-) -> int:
+) -> PullRequest:
     gh_repo = gh.get_repo(repository.full_name)
-    gh_pr = gh_repo.create_pull(
+    pull_request = gh_repo.create_pull(
         pr_template.title,
         pr_template.body,
         repository.default_branch,
         pr_template.branch,
         maintainer_can_modify=True,
     )
-    return gh_pr.number
+    return pull_request
 
 
-def set_pr_state(gh: Github, repository: database.Repository, open_state: bool) -> None:
+def get_pull_request(gh: Github, repository: database.Repository) -> PullRequest:
+    gh_repo = gh.get_repo(repository.full_name)
+    return gh_repo.get_pull(repository.existing_pr)
+
+
+def set_pull_request_state(
+    gh: Github, repository: database.Repository, state: PullRequestState
+):
     if repository.existing_pr is None:
-        raise ValueError()
+        raise ValueError(f"No existing pull request for {repository.name}")
 
-    gh_repo = gh.get_repo(repository.name)
-    gh_pr = gh_repo.get_pull(repository.existing_pr)
+    gh_repo = gh.get_repo(repository.full_name)
+    pull_request = gh_repo.get_pull(repository.existing_pr)
 
-    if open_state and gh_pr.merged:
-        return
+    if pull_request.merged:
+        raise ValueError(
+            f"Pull request already merged for {repository.name} ({pull_request.html_url})"
+        )
 
-    if not open_state and not gh_pr.merged:
-        return
-
-    state_value = "open" if open_state else "closed"
-    gh_pr.edit(state=state_value)
+    pull_request.edit(state=state.value)
 
 
 def gather_repository_list(
