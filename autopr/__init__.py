@@ -5,13 +5,24 @@ import click
 
 from autopr import workdir, config, github, repo, database
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 from autopr.database import Repository
 
-from autopr.util import CliException, set_debug, error
+from autopr.util import CliException, set_debug, error, is_debug
 
 WORKDIR: workdir.WorkDir
+
+
+def main():
+    try:
+        cli(prog_name="auto-pr")
+    except CliException as e:
+        error(f"Error: {e}")
+        if is_debug():
+            raise e
+        else:
+            exit(1)
 
 
 def _ensure_set_up(cfg: config.Config, db: database.Database):
@@ -205,3 +216,7 @@ def reopen():
     """ Reopen all un-merged pull requests """
     _set_all_pull_requests_state(github.PullRequestState.OPEN)
     click.secho("Finished reopening all closed unmerged pull requests")
+
+
+if __name__ == "__main__":
+    main()
