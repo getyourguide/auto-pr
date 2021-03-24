@@ -3,7 +3,7 @@
 ![CI](https://github.com/getyourguide/auto-pr/workflows/CI/badge.svg)
 [![PyPI version](https://badge.fury.io/py/auto-pr.svg)](https://badge.fury.io/py/auto-pr)
 
-A command line tool to perform bulk updates across multiple Github repositories.
+A command line tool to perform bulk updates across multiple GitHub repositories.
 
 ## How to install
 
@@ -30,7 +30,7 @@ First initialise the project directory by running the `init` command within an e
 auto-pr init --api-key=<github_token> --ssh-key-file=<path-to-ssh-key>
 ```
 
-Where `<github_token>` is a Github [personal access token](https://github.com/settings/tokens) which has `repo` and `user:user:email` scope.
+Where `<github_token>` is a GitHub [personal access token](https://github.com/settings/tokens) which has `repo` and `user:user:email` scope.
 
 Next modify the generated `config.yaml` file with your desired configurations.
 
