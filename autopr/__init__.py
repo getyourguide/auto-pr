@@ -145,10 +145,10 @@ def test():
             repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
             repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
             diff = repo.get_diff(WORKDIR.repos_dir, repository)
+            click.secho(f"Diff for repository '{repository.name}':\n{diff}")
         except CliException as e:
             error(f"Error: {e}")
 
-        click.secho(f"Diff for repository '{repository.name}':\n{diff}")
         if not click.confirm("Continue?"):
             return
 
