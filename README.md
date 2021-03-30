@@ -2,6 +2,7 @@
 
 ![CI](https://github.com/getyourguide/auto-pr/workflows/CI/badge.svg)
 [![PyPI version](https://badge.fury.io/py/auto-pr.svg)](https://badge.fury.io/py/auto-pr)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 A command line tool to perform bulk updates across multiple GitHub repositories.
 
