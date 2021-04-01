@@ -98,8 +98,8 @@ def _list_all_repositories(
     gh: Github,
 ) -> List[Tuple[FilterInfo, database.Repository]]:
     repository_list = []
-    pglist = gh.get_user().get_repos()
-    for gh_repo in pglist:
+    gh_repo_list = gh.get_user().get_repos()
+    for gh_repo in gh_repo_list:
         repository = database.Repository(
             owner=gh_repo.owner.login,
             name=gh_repo.name,

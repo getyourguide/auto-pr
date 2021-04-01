@@ -88,7 +88,7 @@ def init(api_key: str, ssh_key_file: str):
     "--update-repos/--no-update-repos",
     default=False,
     is_flag=True,
-    help="Whether to update the locally cloned repoitories to latest changes",
+    help="Whether to update the locally cloned repositories to latest changes",
 )
 def pull(fetch_repo_list: bool, update_repos: bool):
     """ Pull down repositories based on configuration """
