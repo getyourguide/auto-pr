@@ -53,6 +53,7 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
     is_flag=True,
     help="Whether to enable debug mode or not",
 )
+@click.version_option(__version__, message="%(prog)s: %(version)s")
 def cli(wd_path: str, debug: bool):
     global WORKDIR
     WORKDIR = workdir.get(wd_path)
