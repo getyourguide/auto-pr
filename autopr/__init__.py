@@ -53,6 +53,7 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
     is_flag=True,
     help="Whether to enable debug mode or not",
 )
+@click.version_option(__version__, message="%(prog)s: %(version)s")
 def cli(wd_path: str, debug: bool):
     global WORKDIR
     WORKDIR = workdir.get(wd_path)
@@ -88,7 +89,7 @@ def init(api_key: str, ssh_key_file: str):
     "--update-repos/--no-update-repos",
     default=False,
     is_flag=True,
-    help="Whether to update the locally cloned repoitories to latest changes",
+    help="Whether to update the locally cloned repositories to latest changes",
 )
 def pull(fetch_repo_list: bool, update_repos: bool):
     """ Pull down repositories based on configuration """

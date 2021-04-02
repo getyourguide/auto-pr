@@ -65,6 +65,7 @@ def pull_repository(
         try:
             _git_pull(repo_dir)
         except CliException as e:
+            util.debug(f"Failed to clone: {e}")
             pull_failed = True
 
     if pull_failed:
