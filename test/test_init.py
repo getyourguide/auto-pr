@@ -5,11 +5,11 @@ from test.test_utils import run_cli, simple_test_config, simple_test_database
 
 
 def test_create_files(tmp_path):
-    testkey = Path(tmp_path) / "testkey"
-    testkey.touch()
+    test_key = Path(tmp_path) / "test_key"
+    test_key.touch()
 
     wd = workdir.WorkDir(Path(tmp_path))
-    run_cli(wd, ["init", "--api-key", "test", "--ssh-key-file", f"{testkey}"])
+    run_cli(wd, ["init", "--api-key", "test", "--ssh-key-file", f"{test_key}"])
 
     assert wd.config_file.is_file()
     assert wd.database_file.is_file()
@@ -19,12 +19,12 @@ def test_create_files(tmp_path):
 def test_no_override_files(tmp_path):
     wd = workdir.WorkDir(Path(tmp_path))
 
-    testkey = Path(tmp_path) / "testkey"
-    testkey.touch()
+    test_key = Path(tmp_path) / "test_key"
+    test_key.touch()
 
     result = run_cli(
         wd,
-        ["init", "--api-key", "not-written", "--ssh-key-file", f"{testkey}"],
+        ["init", "--api-key", "not-written", "--ssh-key-file", f"{test_key}"],
         cfg=simple_test_config(),
         db=simple_test_database(),
     )
