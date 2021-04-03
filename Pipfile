@@ -11,6 +11,7 @@ wheel = "*"
 pre-commit = "*"
 coverage = "*"
 pipenv-setup = "*"
+pytest-cov = "*"
 
 [packages]
 marshmallow = "*"
