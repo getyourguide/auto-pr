@@ -7,8 +7,6 @@ from autopr import workdir, config, github, repo, database
 
 __version__ = "0.1.2"
 
-from autopr.database import Repository
-
 from autopr.util import CliException, set_debug, error, is_debug
 
 WORKDIR: workdir.WorkDir

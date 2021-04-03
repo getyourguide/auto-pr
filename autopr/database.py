@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, List, Generator
+from typing import Optional, List
 
 import marshmallow_dataclass
 
