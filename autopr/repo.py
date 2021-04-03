@@ -61,7 +61,7 @@ def pull_repository(
         click.secho(f"  - Checking out branch '{repository.default_branch}'")
         _git_checkout(repo_dir, repository.default_branch)
 
-        click.secho(f"  - Pulling latest changes")
+        click.secho("  - Pulling latest changes")
         try:
             _git_pull(repo_dir)
         except CliException as e:
@@ -69,7 +69,7 @@ def pull_repository(
             pull_failed = True
 
     if pull_failed:
-        click.secho(f"  - Pull failed; deleting repo")
+        click.secho("  - Pull failed; deleting repo")
         shutil.rmtree(repo_dir)
 
     if not repo_exists or pull_failed:
@@ -78,7 +78,7 @@ def pull_repository(
             ssh_key_file, repo_dir, repository.ssh_url, repository.default_branch
         )
 
-        click.secho(f"  - Setting user and email")
+        click.secho("  - Setting user and email")
     _git_config(repo_dir, "user.name", user.name)
     _git_config(repo_dir, "user.email", user.email)
 
@@ -88,7 +88,7 @@ def prepare_repository(repos_dir: Path, repository: database.Repository, branch:
 
     click.secho(f"Resetting repository '{repository.name}':")
 
-    click.secho(f"  - Resetting changes")
+    click.secho("  - Resetting changes")
     _git_reset_hard(repo_dir)
 
     click.secho(f"  - Checking out default branch '{repository.default_branch}'")
@@ -127,10 +127,10 @@ def commit_and_push_changes(
 ) -> bool:
     repo_dir = repos_dir / repository.name
     if _git_staged_diff(repo_dir) == "":
-        click.secho(f"  - No changes")
+        click.secho("  - No changes")
         return False
 
-    click.secho(f"  - Committing and pushing changes")
+    click.secho("  - Committing and pushing changes")
     _git_commit(repo_dir, message)
 
     force_push = repository.existing_pr is not None
@@ -253,7 +253,7 @@ def run_update(
     )
 
     if not updated:
-        click.secho(f"  - Nothing updated")
+        click.secho("  - Nothing updated")
         _mark_repository_as_done(repository, db, workdir)
         return
 
