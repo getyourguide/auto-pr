@@ -61,15 +61,15 @@ update_command:
 
 You can define the list of repositories to pull and build into the database to update using a list of rules.
 
-- `mode` - either `add` or `remove` - used to either match or negate
-- `public` (optional) - pull only public or private, leave out for both
-- `archived` (optional) -  archived or non-archived, leave out for both
-- `match_owner` (optional) - the owner or user to pull
-- `match_name` (optional) - a list of regular expressions to match against to pull
+-   `mode` - either `add` or `remove` - used to either match or negate
+-   `public` (optional) - pull only public or private, leave out for both
+-   `archived` (optional) -  archived or non-archived, leave out for both
+-   `match_owner` (optional) - the owner or user to pull
+-   `match_name` (optional) - a list of regular expressions to match against to pull
 
 The flags of the filter rules are optional not specifying will run the command on all repositories that the token has access too.
 
-###  Update Command
+### Update Command
 
 This is the list containing the command to be executed along with the arguments passed to it. It will be executed from
 the root of each repository that is processed.
