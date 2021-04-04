@@ -14,7 +14,7 @@ WORKDIR: workdir.WorkDir
 
 def main():
     try:
-        cli(prog_name="auto-pr")
+        cli()
     except CliException as e:
         error(f"Error: {e}")
         if is_debug():
