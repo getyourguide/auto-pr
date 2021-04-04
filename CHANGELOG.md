@@ -2,7 +2,7 @@
 
 ## 0.2.0
 
-- Added `--version` flag
+-   Added `--version` flag
 
 ## 0.1.2
 
