@@ -1,6 +1,8 @@
 # auto-pr
 
 ![CI](https://github.com/getyourguide/auto-pr/workflows/CI/badge.svg)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/7db0700cf0b74ac6976e520fbdb92a7f)](https://www.codacy.com/gh/getyourguide/auto-pr/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=getyourguide/auto-pr&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/7db0700cf0b74ac6976e520fbdb92a7f)](https://www.codacy.com/gh/getyourguide/auto-pr/dashboard?utm_source=github.com&utm_medium=referral&utm_content=getyourguide/auto-pr&utm_campaign=Badge_Coverage)
 [![PyPI version](https://badge.fury.io/py/auto-pr.svg)](https://badge.fury.io/py/auto-pr)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -59,15 +61,15 @@ update_command:
 
 You can define the list of repositories to pull and build into the database to update using a list of rules.
 
-- `mode` - either `add` or `remove` - used to either match or negate
-- `public` (optional) - pull only public or private, leave out for both
-- `archived` (optional) -  archived or non-archived, leave out for both
-- `match_owner` (optional) - the owner or user to pull
-- `match_name` (optional) - a list of regular expressions to match against to pull
+-   `mode` - either `add` or `remove` - used to either match or negate
+-   `public` (optional) - pull only public or private, leave out for both
+-   `archived` (optional) -  archived or non-archived, leave out for both
+-   `match_owner` (optional) - the owner or user to pull
+-   `match_name` (optional) - a list of regular expressions to match against to pull
 
 The flags of the filter rules are optional not specifying will run the command on all repositories that the token has access too.
 
-###  Update Command
+### Update Command
 
 This is the list containing the command to be executed along with the arguments passed to it. It will be executed from
 the root of each repository that is processed.

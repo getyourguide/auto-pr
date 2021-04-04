@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Tuple, Dict, NoReturn
+from typing import List, Tuple, Dict
 
 from github import Github
 from github.PullRequest import PullRequest

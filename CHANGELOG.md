@@ -4,11 +4,11 @@
 
 ### Added
 
-- Added `--version` flag (#23)
+-   Added `--version` flag
 
 ### Fixed
 
-- Only show diff if it exists (#22)
+-   Only show diff if it exists (#22)
 
 ## 0.1.2
 
