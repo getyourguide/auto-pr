@@ -68,7 +68,7 @@ class DatabaseTest(unittest.TestCase):
             repositories=[
                 get_repository("removed", removed=True),
                 get_repository("non-removed"),
-            ]
+            ],
         )
 
         non_removed = db.non_removed_repositories()
@@ -76,5 +76,5 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual("non-removed", non_removed[0].name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
