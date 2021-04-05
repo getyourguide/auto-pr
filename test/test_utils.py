@@ -85,7 +85,12 @@ def get_repository(
     owner: str = "den",
     ssh_url: str = "git@gitgitgit.com/git/git.git",
     default_branch: str = "main",
+    removed: bool = False,
 ) -> Repository:
     return Repository(
-        owner=owner, name=name, ssh_url=ssh_url, default_branch=default_branch
+        owner=owner,
+        name=name,
+        ssh_url=ssh_url,
+        default_branch=default_branch,
+        removed=removed,
     )
