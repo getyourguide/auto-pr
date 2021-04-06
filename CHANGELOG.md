@@ -4,7 +4,7 @@
 
 ### Added
 
--   Added `--version` flag
+-   Added `--version` flag (#23)
 
 ### Fixed
 
