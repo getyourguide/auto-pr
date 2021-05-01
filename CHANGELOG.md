@@ -3,16 +3,16 @@
 ## _Unreleased_
 
 ### Added
--   Added flags `--pull-repos`/`--no-pull-repos` to `test` and `run` (#34)
--   For the `test` command: (#34)
-    -   Add flags `--pull-repos`/`--no-pull-repos`, with default to `--no-pull-repos`
-    -   Show diff in color
--   For the `run` command: (#34)
-    -   Add flags `--pull-repos`/`--no-pull-repos`, with default to `--pull-repos`
-    -   Show progress
-    -   Don't sleep after pushing the last PR
-    -   Set a default `--push_delay`
--   Ask for the API key if not passed via parameters
+-   `auto-pr test`:
+    -   Add flags `--pull-repos`/`--no-pull-repos`, with default to `--no-pull-repos` (#34)
+    -   Show diff in color (#34)
+-   `auto-pr run`:
+    -   Add flags `--pull-repos`/`--no-pull-repos`, with default to `--pull-repos` (#34)
+    -   Show progress (#34)
+    -   Don't sleep after pushing the last PR (#34)
+    -   Set a default `--push_delay` (#34)
+-   `auto-pr init`:
+    -   Ask for the API key if not passed via parameters (#34)
 
 
 ## 0.2.0
