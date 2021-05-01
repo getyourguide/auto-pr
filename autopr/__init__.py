@@ -183,7 +183,7 @@ def run(pull_repos: bool, push_delay: Optional[float]):
 
     change_pushed = False
     for i, repository in enumerate(repositories_todo, start=1):
-        if change_pushed and push_delay is not None and i != len(repositories_todo):
+        if change_pushed and push_delay is not None:
             click.secho(f"Sleeping for {push_delay} seconds...")
             time.sleep(push_delay)
 
