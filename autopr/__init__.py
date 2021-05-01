@@ -65,7 +65,8 @@ def cli(wd_path: str, debug: bool):
     "--api-key",
     envvar="APR_API_KEY",
     required=True,
-    prompt=True,
+    prompt="GitHub API key",
+    hide_input=True,
     help="The GitHub API key to use, needs `repo` and `user->user:email` scope",
 )
 @click.option(
@@ -74,7 +75,7 @@ def cli(wd_path: str, debug: bool):
         exists=True, file_okay=True, dir_okay=False, writable=False, readable=True
     ),
     required=True,
-    prompt=True,
+    prompt="Private SSH keyfile",
     help="Path to the SSH key to use when pushing to GitHub",
 )
 def init(api_key: str, ssh_key_file: str):
@@ -187,13 +188,15 @@ def run(pull_repos: bool, push_delay: Optional[float]):
             click.secho(f"Sleeping for {push_delay} seconds...")
             time.sleep(push_delay)
 
+        click.secho(
+            f"[{i}/{len(repositories_todo)}] Updating '{repository.name}'", bold=True
+        )
+
         try:
             repo.reset_and_run_script(repository, db, cfg, WORKDIR, pull_repos)
             change_pushed = repo.push_changes(repository, db, cfg, gh, WORKDIR)
         except CliException as e:
             error(f"Error: {e}")
-
-        click.secho(f"Handled {i}/{len(repositories_todo)} repositories", bold=True)
 
     click.secho(f"Done!", bold=True)
 

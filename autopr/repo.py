@@ -200,7 +200,9 @@ def _git_config(repo_dir: Path, key: str, value: str) -> None:
 
 
 def _git_staged_diff(repo_dir: Path) -> str:
-    return run_cmd(["git", "-C", f"{repo_dir}", "diff", "--staged"])
+    return run_cmd(
+        ["git", "-c", "color.ui=always", "-C", f"{repo_dir}", "diff", "--staged"]
+    )
 
 
 def _git_add_all(repo_dir: Path) -> None:
