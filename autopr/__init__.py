@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -9,6 +10,7 @@ __version__ = "0.2.0"
 
 from autopr.util import CliException, set_debug, error, is_debug
 
+DEFAULT_PUSH_DELAY = 30.0
 WORKDIR: workdir.WorkDir
 
 
@@ -60,7 +62,10 @@ def cli(wd_path: str, debug: bool):
 
 @cli.command()
 @click.option(
-    "--api-key", envvar="APR_API_KEY", required=True, help="The GitHub API key to use"
+    "--api-key",
+    envvar="APR_API_KEY",
+    required=False,
+    help="The GitHub API key to use, needs `repo` and `user->user:email` scope",
 )
 @click.option(
     "--ssh-key-file",
@@ -70,8 +75,14 @@ def cli(wd_path: str, debug: bool):
     required=True,
     help="Path to the SSH key to use when pushing to GitHub",
 )
-def init(api_key: str, ssh_key_file: str):
+def init(api_key: Optional[str], ssh_key_file: str):
     """ Initialise configuration and database """
+    if api_key is None:
+        api_key = click.prompt("GitHub API key")
+        if not api_key:
+            error(f"No API key provided.")
+            return
+
     credentials = config.Credentials(api_key=api_key, ssh_key_file=ssh_key_file)
     workdir.init(WORKDIR, credentials)
 
@@ -125,7 +136,13 @@ def pull(fetch_repo_list: bool, update_repos: bool):
 
 
 @cli.command()
-def test():
+@click.option(
+    "--pull-repos/--no-pull-repos",
+    default=False,
+    is_flag=True,
+    help="Whether to pull repositories before testing",
+)
+def test(pull_repos: bool):
     """ Check what expected diff will be for command execution """
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
@@ -133,16 +150,7 @@ def test():
 
     for repository in db.non_removed_repositories():
         try:
-            repo.pull_repository(
-                db.user,
-                Path(cfg.credentials.ssh_key_file),
-                WORKDIR.repos_dir,
-                repository,
-                True,
-            )
-            # reset repo and check out branch
-            repo.prepare_repository(WORKDIR.repos_dir, repository, cfg.pr.branch)
-            repo.run_update_command(WORKDIR.repos_dir, repository, cfg.update_command)
+            repo.reset_and_run_script(repository, db, cfg, WORKDIR, pull_repos)
             diff = repo.get_diff(WORKDIR.repos_dir, repository)
             click.secho(f"Diff for repository '{repository.name}':\n{diff}")
         except CliException as e:
@@ -156,26 +164,39 @@ def test():
 
 @cli.command()
 @click.option(
+    "--pull-repos/--no-pull-repos",
+    default=True,
+    is_flag=True,
+    help="Whether to pull repositories before running",
+)
+@click.option(
     "--push-delay",
-    type=click.FLOAT,
-    default=None,
+    type=click.FloatRange(min=0.0, max=None, clamp=True),
+    default=DEFAULT_PUSH_DELAY,
     help="Delay in seconds between pushing changes to repositories",
 )
-def run(push_delay: Optional[float]):
+def run(pull_repos: bool, push_delay: Optional[float]):
     """ Run update logic and create pull requests if changes made """
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
     gh = github.create_github_client(cfg.credentials.api_key)
 
-    for repository in db.non_removed_repositories():
-        if repository.done:
-            continue
-
+    repositories = db.non_removed_repositories()
+    repositories_todo = [r for r in repositories if not r.done]
+    for i, repository in enumerate(repositories_todo, start=1):
+        updated = False
         try:
-            repo.run_update(repository, db, cfg, gh, WORKDIR, push_delay)
+            repo.reset_and_run_script(repository, db, cfg, WORKDIR, pull_repos)
+            updated = repo.push_changes(repository, db, cfg, gh, WORKDIR)
         except CliException as e:
             error(f"Error: {e}")
+
+        if updated and push_delay is not None and i != len(repositories_todo):
+            click.secho(f"Sleeping for {push_delay} seconds...")
+            time.sleep(push_delay)
+
+        click.secho(f"Handled {i}/{len(repositories_todo)} repositories", bold=True)
 
 
 @cli.command()
