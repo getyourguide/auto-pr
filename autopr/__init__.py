@@ -64,7 +64,8 @@ def cli(wd_path: str, debug: bool):
 @click.option(
     "--api-key",
     envvar="APR_API_KEY",
-    required=False,
+    required=True,
+    prompt=True,
     help="The GitHub API key to use, needs `repo` and `user->user:email` scope",
 )
 @click.option(
@@ -73,16 +74,11 @@ def cli(wd_path: str, debug: bool):
         exists=True, file_okay=True, dir_okay=False, writable=False, readable=True
     ),
     required=True,
+    prompt=True,
     help="Path to the SSH key to use when pushing to GitHub",
 )
-def init(api_key: Optional[str], ssh_key_file: str):
+def init(api_key: str, ssh_key_file: str):
     """ Initialise configuration and database """
-    if api_key is None:
-        api_key = click.prompt("GitHub API key")
-        if not api_key:
-            error(f"No API key provided.")
-            return
-
     credentials = config.Credentials(api_key=api_key, ssh_key_file=ssh_key_file)
     workdir.init(WORKDIR, credentials)
 
@@ -184,19 +180,22 @@ def run(pull_repos: bool, push_delay: Optional[float]):
 
     repositories = db.non_removed_repositories()
     repositories_todo = [r for r in repositories if not r.done]
-    for i, repository in enumerate(repositories_todo, start=1):
-        updated = False
-        try:
-            repo.reset_and_run_script(repository, db, cfg, WORKDIR, pull_repos)
-            updated = repo.push_changes(repository, db, cfg, gh, WORKDIR)
-        except CliException as e:
-            error(f"Error: {e}")
 
-        if updated and push_delay is not None and i != len(repositories_todo):
+    change_pushed = False
+    for i, repository in enumerate(repositories_todo, start=1):
+        if change_pushed and push_delay is not None and i != len(repositories_todo):
             click.secho(f"Sleeping for {push_delay} seconds...")
             time.sleep(push_delay)
 
+        try:
+            repo.reset_and_run_script(repository, db, cfg, WORKDIR, pull_repos)
+            change_pushed = repo.push_changes(repository, db, cfg, gh, WORKDIR)
+        except CliException as e:
+            error(f"Error: {e}")
+
         click.secho(f"Handled {i}/{len(repositories_todo)} repositories", bold=True)
+
+    click.secho(f"Done!", bold=True)
 
 
 @cli.command()
