@@ -270,7 +270,10 @@ def push_changes(
 
     if repository.existing_pr:
         pull_request = github.get_pull_request(gh, repository)
-        if not pull_request.merged and pull_request.state != "closed":
+        if (
+            not pull_request.merged
+            and pull_request.state != github.PullRequestState.CLOSED.value
+        ):
             click.secho(f"  - Pull request: {pull_request.html_url}")
             _mark_repository_as_done(repository, db, workdir)
             return False
