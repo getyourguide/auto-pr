@@ -1,6 +1,6 @@
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 import click
 
@@ -208,6 +208,59 @@ def reset():
     db.reset()
     workdir.write_database(WORKDIR, db)
     click.secho("Repositories marked as not done")
+
+
+def _print_repository_list(
+    title: str, repositories: List[database.Repository], total: int
+):
+    if len(repositories) > 0:
+        click.secho(f"{title} [{len(repositories)}/{total}]:", bold=True)
+        for repository in repositories:
+            link_str = ""
+            if repository.existing_pr is not None:
+                link_str = (
+                    f": https://github.com/{repository.full_name}"
+                    f"/pull/{repository.existing_pr}"
+                )
+            click.secho(f"-   {repository.name}{link_str}")
+
+
+@cli.command()
+def status():
+    cfg = workdir.read_config(WORKDIR)
+    db = workdir.read_database(WORKDIR)
+    gh = github.create_github_client(cfg.credentials.api_key)
+
+    click.secho("Collecting data...")
+
+    if len(db.repositories) == 0:
+        error("No repositories in database.")
+        return
+
+    pr_missing = []
+    pr_merged = []
+    pr_open = []
+    pr_closed = []
+
+    # group repositories by PR state
+    for repository in db.repositories:
+        if repository.existing_pr is None:
+            pr_missing.append(repository)
+            continue
+
+        pull_request = github.get_pull_request(gh, repository)
+        if pull_request.merged:
+            pr_merged.append(repository)
+        elif pull_request.state == github.PullRequestState.OPEN.value:
+            pr_open.append(repository)
+        elif pull_request.state == github.PullRequestState.CLOSED.value:
+            pr_closed.append(repository)
+
+    total = len(db.repositories)
+    _print_repository_list("Merged PRs", pr_merged, total)
+    _print_repository_list("Closed PRs", pr_closed, total)
+    _print_repository_list("Open PRs", pr_open, total)
+    _print_repository_list("Missing PRs", pr_missing, total)
 
 
 def _set_all_pull_requests_state(state: github.PullRequestState):
