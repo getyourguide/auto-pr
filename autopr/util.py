@@ -27,5 +27,5 @@ def warning(msg: str) -> None:
     click.secho(msg, fg="yellow", err=True)
 
 
-def error(msg: str) -> None:
-    click.secho(msg, fg="red", err=True)
+def error(msg: str, **kwargs) -> None:
+    click.secho(msg, fg="red", err=True, **kwargs)

@@ -1,3 +1,4 @@
+import os
 import time
 from pathlib import Path
 from typing import Optional, List
@@ -23,6 +24,8 @@ def main():
             raise e
         else:
             exit(1)
+    except KeyboardInterrupt:
+        error("Aborted.")
 
 
 def _ensure_set_up(cfg: config.Config, db: database.Database):
@@ -97,7 +100,14 @@ def init(api_key: str, ssh_key_file: str):
     is_flag=True,
     help="Whether to update the locally cloned repositories to latest changes",
 )
-def pull(fetch_repo_list: bool, update_repos: bool):
+@click.option(
+    "--process-count",
+    "-j",
+    default=os.cpu_count() or 8,
+    type=int,
+    help="How many repositories to pull in parallel",
+)
+def pull(fetch_repo_list: bool, update_repos: bool, process_count: int):
     """ Pull down repositories based on configuration """
     cfg = workdir.read_config(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
@@ -123,12 +133,13 @@ def pull(fetch_repo_list: bool, update_repos: bool):
 
     # pull all repositories
     click.secho("Pulling repositories...")
-    repo.pull_repositories(
+    repo.pull_repositories_parallel(
         user,
         Path(cfg.credentials.ssh_key_file),
         WORKDIR.repos_dir,
         repositories,
         update_repos,
+        process_count,
     )
 
 
@@ -213,16 +224,18 @@ def reset():
 def _print_repository_list(
     title: str, repositories: List[database.Repository], total: int
 ):
-    if len(repositories) > 0:
-        click.secho(f"{title} [{len(repositories)}/{total}]:", bold=True)
-        for repository in repositories:
-            link_str = ""
-            if repository.existing_pr is not None:
-                link_str = (
-                    f": https://github.com/{repository.full_name}"
-                    f"/pull/{repository.existing_pr}"
-                )
-            click.secho(f"-   {repository.name}{link_str}")
+    if len(repositories) == 0:
+        return
+
+    click.secho(f"{title} [{len(repositories)}/{total}]:", bold=True)
+    for repository in repositories:
+        link_str = ""
+        if repository.existing_pr is not None:
+            link_str = (
+                f": https://github.com/{repository.full_name}"
+                f"/pull/{repository.existing_pr}"
+            )
+        click.secho(f"-   {repository.name}{link_str}")
 
 
 @cli.command()
