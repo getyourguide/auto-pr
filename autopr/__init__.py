@@ -224,9 +224,6 @@ def reset():
 def _print_repository_list(
     title: str, repositories: List[database.Repository], total: int
 ):
-    if len(repositories) == 0:
-        return
-
     click.secho(f"{title} [{len(repositories)}/{total}]:", bold=True)
     for repository in repositories:
         link_str = ""

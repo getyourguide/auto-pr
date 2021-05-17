@@ -18,7 +18,6 @@
     -   Add `-j` flag (#36)
 -   Add `auto-pr progress` command (#35)
 
-
 ## 0.2.0
 
 ### Added
