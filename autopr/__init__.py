@@ -103,7 +103,7 @@ def init(api_key: str, ssh_key_file: str):
 @click.option(
     "--process-count",
     "-j",
-    default=os.cpu_count() or 8,
+    default=os.cpu_count() or 1,
     type=int,
     help="How many repositories to pull in parallel",
 )
