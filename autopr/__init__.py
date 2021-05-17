@@ -7,7 +7,7 @@ import click
 
 from autopr import workdir, config, github, repo, database
 
-__version__ = "0.2.0"
+__version__ = "1.0.0"
 
 from autopr.util import CliException, set_debug, error, is_debug
 
