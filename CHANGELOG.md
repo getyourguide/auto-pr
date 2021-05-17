@@ -1,6 +1,6 @@
 # Changelog
 
-## _Unreleased_
+## 1.0.0
 
 ### Added
 -   `auto-pr test`:
