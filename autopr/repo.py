@@ -1,8 +1,11 @@
+import io
 import os
+import sys
 import shutil
 import subprocess
+from multiprocessing import Pool
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, IO
 
 import click
 from github import Github
@@ -19,24 +22,56 @@ from autopr.util import CliException, error
 from autopr.workdir import WorkDir, write_database
 
 
-def pull_repositories(
+def _pull_repository_task(
     user: database.GitUser,
     ssh_key_file: Path,
     repos_dir: Path,
-    repositories: List[database.Repository],
-    update_repos: bool,
-):
-    for repository in repositories:
+    repository: database.Repository,
+    update_repo_if_exists: bool,
+) -> None:
+    try:
+        output_buffer = io.StringIO()
+
         try:
             pull_repository(
                 user,
                 ssh_key_file,
                 repos_dir,
                 repository,
-                update_repos,
+                update_repo_if_exists,
+                out=output_buffer,
             )
         except CliException as e:
-            error(f"Error: {e}")
+            error(f"Error: {e}", file=output_buffer)
+
+        click.echo(output_buffer.getvalue(), nl=False)
+        output_buffer.close()
+    except KeyboardInterrupt:
+        pass  # will be handled on main thread
+
+
+def pull_repositories_parallel(
+    user: database.GitUser,
+    ssh_key_file: Path,
+    repos_dir: Path,
+    repositories: List[database.Repository],
+    update_repos: bool,
+    process_count: int,
+):
+    parameters = []
+    for repository in repositories:
+        parameters.append(
+            (
+                user,
+                ssh_key_file,
+                repos_dir,
+                repository,
+                update_repos,
+            )
+        )
+
+    with Pool(processes=process_count) as pool:
+        pool.starmap(_pull_repository_task, parameters)
 
 
 def pull_repository(
@@ -45,22 +80,23 @@ def pull_repository(
     repos_dir: Path,
     repository: database.Repository,
     update_repo_if_exists: bool,
+    out: IO[str] = sys.stdout,
 ) -> None:
     repo_dir = repos_dir / repository.name
     repo_exists = repo_dir.exists()
 
     if not update_repo_if_exists and repo_exists:
-        click.secho(f"Repository already exists '{repository.name}':")
+        click.echo(f"Repository '{repository.name}' already exists", file=out)
         return
 
-    click.secho(f"Pulling repository '{repository.name}':")
+    click.echo(f"Pulling repository '{repository.name}':", file=out)
 
     pull_failed = False
     if repo_exists:
-        click.secho(f"  - Checking out branch '{repository.default_branch}'")
+        click.echo(f"  - Checking out branch '{repository.default_branch}'", file=out)
         _git_checkout(repo_dir, repository.default_branch)
 
-        click.secho("  - Pulling latest changes")
+        click.echo("  - Pulling latest changes", file=out)
         try:
             _git_pull(repo_dir)
         except CliException as e:
@@ -68,16 +104,16 @@ def pull_repository(
             pull_failed = True
 
     if pull_failed:
-        click.secho("  - Pull failed; deleting repo")
+        click.echo("  - Pull failed; deleting repo", file=out)
         shutil.rmtree(repo_dir)
 
     if not repo_exists or pull_failed:
-        click.secho(f"  - Cloning branch '{repository.default_branch}'")
+        click.echo(f"  - Cloning branch '{repository.default_branch}'", file=out)
         _git_shallow_clone(
             ssh_key_file, repo_dir, repository.ssh_url, repository.default_branch
         )
 
-        click.secho("  - Setting user and email")
+        click.echo("  - Setting user and email", file=out)
     _git_config(repo_dir, "user.name", user.name)
     _git_config(repo_dir, "user.email", user.email)
 
@@ -85,15 +121,15 @@ def pull_repository(
 def prepare_repository(repos_dir: Path, repository: database.Repository, branch: str):
     repo_dir = repos_dir / repository.name
 
-    click.secho(f"Resetting repository '{repository.name}':")
+    click.echo(f"Resetting repository '{repository.name}':")
 
-    click.secho("  - Resetting changes")
+    click.echo("  - Resetting changes")
     _git_reset_hard(repo_dir)
 
-    click.secho(f"  - Checking out default branch '{repository.default_branch}'")
+    click.echo(f"  - Checking out default branch '{repository.default_branch}'")
     _git_checkout(repo_dir, repository.default_branch)
 
-    click.secho(f"  - Creating or resetting branch '{branch}'")
+    click.echo(f"  - Creating or resetting branch '{branch}'")
     _git_branch_checkout_reset(repo_dir, branch)
 
 
@@ -102,7 +138,7 @@ def run_update_command(
 ):
     repo_dir = repos_dir / repository.name
 
-    click.secho(f"Running update command for repository '{repository.name}':")
+    click.echo(f"Running update command for repository '{repository.name}':")
 
     cwd = os.getcwd()
     os.chdir(repo_dir)
@@ -126,10 +162,10 @@ def commit_and_push_changes(
 ) -> bool:
     repo_dir = repos_dir / repository.name
     if _git_staged_diff(repo_dir) == "":
-        click.secho("  - No changes")
+        click.echo("  - No changes")
         return False
 
-    click.secho("  - Committing and pushing changes")
+    click.echo("  - Committing and pushing changes")
     _git_commit(repo_dir, message)
 
     force_push = repository.existing_pr is not None
