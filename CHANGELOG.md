@@ -13,7 +13,7 @@
     -   Set a default `--push_delay` (#34)
 -   `auto-pr init`:
     -   Ask for the API key if not passed via parameters (#34)
-
+-   Add `auto-pr progress` command (#35)
 
 ## 0.2.0
 
