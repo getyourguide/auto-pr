@@ -213,16 +213,15 @@ def reset():
 def _print_repository_list(
     title: str, repositories: List[database.Repository], total: int
 ):
-    if len(repositories) > 0:
-        click.secho(f"{title} [{len(repositories)}/{total}]:", bold=True)
-        for repository in repositories:
-            link_str = ""
-            if repository.existing_pr is not None:
-                link_str = (
-                    f": https://github.com/{repository.full_name}"
-                    f"/pull/{repository.existing_pr}"
-                )
-            click.secho(f"-   {repository.name}{link_str}")
+    click.secho(f"{title} [{len(repositories)}/{total}]:", bold=True)
+    for repository in repositories:
+        link_str = ""
+        if repository.existing_pr is not None:
+            link_str = (
+                f": https://github.com/{repository.full_name}"
+                f"/pull/{repository.existing_pr}"
+            )
+        click.secho(f"-   {repository.name}{link_str}")
 
 
 @cli.command()
