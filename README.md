@@ -1,4 +1,4 @@
-# auto-pr
+<img width="128" src="https://github.com/getyourguide/auto-pr/raw/master/img/logo.svg" alt="auto-pr logo" />
 
 ![CI](https://github.com/getyourguide/auto-pr/workflows/CI/badge.svg)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7db0700cf0b74ac6976e520fbdb92a7f)](https://www.codacy.com/gh/getyourguide/auto-pr/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=getyourguide/auto-pr&amp;utm_campaign=Badge_Grade)
@@ -6,6 +6,8 @@
 [![PyPI version](https://badge.fury.io/py/auto-pr.svg)](https://badge.fury.io/py/auto-pr)
 ![PyPI downloads](https://img.shields.io/pypi/dm/auto-pr)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+# auto-pr
 
 A command line tool to perform bulk updates across multiple GitHub repositories.
 
@@ -24,7 +26,7 @@ pip install auto-pr
 
 ## Usage
 
-[![Usage](https://github.com/getyourguide/auto-pr/raw/master/img/auto-pr.svg)](https://github.com/getyourguide/auto-pr/raw/master/img/auto-pr.svg)
+[![Usage](https://github.com/getyourguide/auto-pr/raw/master/img/workflow.svg)](https://github.com/getyourguide/auto-pr/raw/master/img/workflow.svg)
 
 ### Init
 
