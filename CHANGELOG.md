@@ -1,5 +1,10 @@
 # Changelog
 
+## _Unreleased_
+
+### Fixed
+-   Bump urllib3 from 1.26.4 to 1.26 (#39)
+
 ## 1.0.0
 
 ### Added
