@@ -4,6 +4,9 @@
 
 ### Fixed
 -   Bump urllib3 from 1.26.4 to 1.26 (#39)
+-   Correct debug log on repository pull (#44)
+-   Improved error output on command failures (#44)
+-   Don't copy user env into sub-processes (#44)
 
 ## 1.0.0
 
