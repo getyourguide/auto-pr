@@ -4,10 +4,11 @@ from pathlib import Path
 from typing import Optional, List
 
 import click
+from single_source import get_version
 
 from autopr import workdir, config, github, repo, database
 
-__version__ = "1.0.0"
+__version__ = get_version(__name__, Path(__file__).parent.parent)
 
 from autopr.util import CliException, set_debug, error, is_debug
 

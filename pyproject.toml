@@ -17,7 +17,6 @@ packages = [
 [tool.poetry.scripts]
 auto-pr = "autopr:main"
 
-
 [tool.poetry.dependencies]
 python = "^3.8"
 marshmallow = "*"
@@ -25,6 +24,7 @@ marshmallow-dataclass = "*"
 click = "*"
 pygithub = "*"
 pyyaml = "*"
+single-source = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
