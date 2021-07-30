@@ -1,7 +1,7 @@
 from pathlib import Path
+from test.test_utils import run_cli, simple_test_config, simple_test_database
 
 from autopr import workdir
-from test.test_utils import run_cli, simple_test_config, simple_test_database
 
 
 def test_create_files(tmp_path):

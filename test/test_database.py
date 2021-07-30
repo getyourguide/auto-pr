@@ -1,7 +1,8 @@
 import unittest
-from unittest.mock import Mock
-from autopr.database import Database
 from test.test_utils import get_repository
+from unittest.mock import Mock
+
+from autopr.database import Database
 
 
 class DatabaseTest(unittest.TestCase):

@@ -1,9 +1,9 @@
 import subprocess
-from typing import Optional, List
+from typing import List, Optional
 
 from click.testing import CliRunner, Result
 
-from autopr import cli, database, config, workdir
+from autopr import cli, config, database, workdir
 from autopr.database import Repository
 
 
