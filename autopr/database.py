@@ -39,6 +39,7 @@ class Database:
     )  # is equal to assigning []
 
     def repositories_to_process(self) -> List[Repository]:
+        """ Get only non-removed and non-done repositories. """
         return [
             repo for repo in self.repositories if not repo.removed and not repo.done
         ]
