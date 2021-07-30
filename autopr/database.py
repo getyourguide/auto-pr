@@ -38,7 +38,7 @@ class Database:
         default_factory=list
     )  # is equal to assigning []
 
-    def repos_to_process(self) -> List[Repository]:
+    def repositories_to_process(self) -> List[Repository]:
         return [
             repo for repo in self.repositories if not repo.removed and not repo.done
         ]
