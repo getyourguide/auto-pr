@@ -38,8 +38,10 @@ class Database:
         default_factory=list
     )  # is equal to assigning []
 
-    def non_removed_repositories(self) -> List[Repository]:
-        return [repo for repo in self.repositories if not repo.removed]
+    def repos_to_process(self) -> List[Repository]:
+        return [
+            repo for repo in self.repositories if not repo.removed and not repo.done
+        ]
 
     def needs_pulling(self) -> bool:
         return self.user is None

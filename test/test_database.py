@@ -62,18 +62,19 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual("first", db_first.repositories[0].name)
         self.assertEqual("fourth", db_first.repositories[3].name)
 
-    def test_non_removed_repositories(self):
+    def test_repos_to_process(self):
         db = Database(
             user=Mock(),
             repositories=[
                 get_repository("removed", removed=True),
+                get_repository("done", done=True),
                 get_repository("non-removed"),
             ],
         )
 
-        non_removed = db.non_removed_repositories()
-        self.assertEqual(1, len(non_removed))
-        self.assertEqual("non-removed", non_removed[0].name)
+        repositories = db.repos_to_process()
+        self.assertEqual(1, len(repositories))
+        self.assertEqual("non-removed", repositories[0].name)
 
 
 if __name__ == "__main__":

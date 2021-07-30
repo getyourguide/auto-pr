@@ -129,7 +129,7 @@ def pull(fetch_repo_list: bool, update_repos: bool, process_count: int):
         workdir.write_database(WORKDIR, db_old)
     else:
         click.secho("Not gathering repository list")
-        repositories = db_old.non_removed_repositories()
+        repositories = db_old.repos_to_process()
 
     # pull all repositories
     click.secho("Pulling repositories...")
@@ -156,7 +156,7 @@ def test(pull_repos: bool):
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
 
-    for repository in db.non_removed_repositories():
+    for repository in db.repos_to_process():
         try:
             repo.reset_and_run_script(repository, db, cfg, WORKDIR, pull_repos)
             diff = repo.get_diff(WORKDIR.repos_dir, repository)
@@ -190,17 +190,16 @@ def run(pull_repos: bool, push_delay: Optional[float]):
     _ensure_set_up(cfg, db)
     gh = github.create_github_client(cfg.credentials.api_key)
 
-    repositories = db.non_removed_repositories()
-    repositories_todo = [r for r in repositories if not r.done]
+    repositories = db.repos_to_process()
 
     change_pushed = False
-    for i, repository in enumerate(repositories_todo, start=1):
+    for i, repository in enumerate(repositories, start=1):
         if change_pushed and push_delay is not None:
             click.secho(f"Sleeping for {push_delay} seconds...")
             time.sleep(push_delay)
 
         click.secho(
-            f"[{i}/{len(repositories_todo)}] Updating '{repository.name}'", bold=True
+            f"[{i}/{len(repositories)}] Updating '{repository.name}'", bold=True
         )
 
         try:
