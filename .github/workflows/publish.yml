@@ -12,13 +12,15 @@ jobs:
     - uses: actions/setup-python@v1
       with:
         python-version: 3.9
-    - name: Install pipenv
-      run: python -m pip install --upgrade pipenv wheel
+    - name: Install poetry
+      uses: abatilo/actions-poetry@v2.0.0
+      with:
+        poetry-version: 1.1.7
     - name: Install pip dependencies
-      run: pipenv install -d
+      run: poetry install
     - name: Package
       run: |
-        pipenv run python setup.py sdist bdist_wheel
+        poetry build
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@master
       with:

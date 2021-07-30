@@ -4,12 +4,15 @@ from pathlib import Path
 from typing import List, Optional
 
 import click
+from single_source import get_version
 
 from autopr import config, database, github, repo, workdir
-
-__version__ = "1.0.0"
-
 from autopr.util import CliException, error, is_debug, set_debug
+
+__version__ = get_version(
+    "auto-pr",
+    Path(__file__).parent.parent,
+)
 
 DEFAULT_PUSH_DELAY = 30.0
 WORKDIR: workdir.WorkDir
