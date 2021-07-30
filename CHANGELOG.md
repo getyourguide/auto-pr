@@ -7,6 +7,7 @@
 -   Correct debug log on repository pull (#44)
 -   Improved error output on command failures (#44)
 -   Don't copy user env into sub-processes (#44)
+-   Improve DB access for repositories to process (#48)
 
 ## 1.0.0
 
