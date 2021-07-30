@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import List, Optional
 
 import marshmallow_dataclass
 
@@ -38,8 +38,11 @@ class Database:
         default_factory=list
     )  # is equal to assigning []
 
-    def non_removed_repositories(self) -> List[Repository]:
-        return [repo for repo in self.repositories if not repo.removed]
+    def repositories_to_process(self) -> List[Repository]:
+        """Get all repositories filtering out done and removed"""
+        return [
+            repo for repo in self.repositories if not repo.removed and not repo.done
+        ]
 
     def needs_pulling(self) -> bool:
         return self.user is None

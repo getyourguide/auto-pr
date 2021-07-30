@@ -1,14 +1,13 @@
 import os
 import time
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 import click
 from single_source import get_version
 
-from autopr import workdir, config, github, repo, database
-from autopr.util import CliException, set_debug, error, is_debug
-
+from autopr import config, database, github, repo, workdir
+from autopr.util import CliException, error, is_debug, set_debug
 
 __version__ = get_version(
     "auto-pr",
@@ -86,7 +85,7 @@ def cli(wd_path: str, debug: bool):
     help="Path to the SSH key to use when pushing to GitHub",
 )
 def init(api_key: str, ssh_key_file: str):
-    """ Initialise configuration and database """
+    """Initialise configuration and database"""
     credentials = config.Credentials(api_key=api_key, ssh_key_file=ssh_key_file)
     workdir.init(WORKDIR, credentials)
 
@@ -112,7 +111,7 @@ def init(api_key: str, ssh_key_file: str):
     help="How many repositories to pull in parallel",
 )
 def pull(fetch_repo_list: bool, update_repos: bool, process_count: int):
-    """ Pull down repositories based on configuration """
+    """Pull down repositories based on configuration"""
     cfg = workdir.read_config(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
     user = github.get_user(gh)
@@ -133,7 +132,7 @@ def pull(fetch_repo_list: bool, update_repos: bool, process_count: int):
         workdir.write_database(WORKDIR, db_old)
     else:
         click.secho("Not gathering repository list")
-        repositories = db_old.non_removed_repositories()
+        repositories = db_old.repositories_to_process()
 
     # pull all repositories
     click.secho("Pulling repositories...")
@@ -155,12 +154,12 @@ def pull(fetch_repo_list: bool, update_repos: bool, process_count: int):
     help="Whether to pull repositories before testing",
 )
 def test(pull_repos: bool):
-    """ Check what expected diff will be for command execution """
+    """Check what expected diff will be for command execution"""
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
 
-    for repository in db.non_removed_repositories():
+    for repository in db.repositories_to_process():
         try:
             repo.reset_and_run_script(repository, db, cfg, WORKDIR, pull_repos)
             diff = repo.get_diff(WORKDIR.repos_dir, repository)
@@ -188,23 +187,22 @@ def test(pull_repos: bool):
     help="Delay in seconds between pushing changes to repositories",
 )
 def run(pull_repos: bool, push_delay: Optional[float]):
-    """ Run update logic and create pull requests if changes made """
+    """Run update logic and create pull requests if changes made"""
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
     gh = github.create_github_client(cfg.credentials.api_key)
 
-    repositories = db.non_removed_repositories()
-    repositories_todo = [r for r in repositories if not r.done]
+    repositories = db.repositories_to_process()
 
     change_pushed = False
-    for i, repository in enumerate(repositories_todo, start=1):
+    for i, repository in enumerate(repositories, start=1):
         if change_pushed and push_delay is not None:
             click.secho(f"Sleeping for {push_delay} seconds...")
             time.sleep(push_delay)
 
         click.secho(
-            f"[{i}/{len(repositories_todo)}] Updating '{repository.name}'", bold=True
+            f"[{i}/{len(repositories)}] Updating '{repository.name}'", bold=True
         )
 
         try:
@@ -218,7 +216,7 @@ def run(pull_repos: bool, push_delay: Optional[float]):
 
 @cli.command()
 def reset():
-    """ Mark all mapped repositories as not done """
+    """Mark all mapped repositories as not done"""
     db = workdir.read_database(WORKDIR)
     db.reset()
     workdir.write_database(WORKDIR, db)
@@ -295,14 +293,14 @@ def _set_all_pull_requests_state(state: github.PullRequestState):
 
 @cli.command()
 def close():
-    """ Close all open pull requests """
+    """Close all open pull requests"""
     _set_all_pull_requests_state(github.PullRequestState.CLOSED)
     click.secho("Finished closing all open pull requests")
 
 
 @cli.command()
 def reopen():
-    """ Reopen all un-merged pull requests """
+    """Reopen all un-merged pull requests"""
     _set_all_pull_requests_state(github.PullRequestState.OPEN)
     click.secho("Finished reopening all closed unmerged pull requests")
 

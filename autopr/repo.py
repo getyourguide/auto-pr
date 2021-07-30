@@ -1,22 +1,16 @@
 import io
 import os
-import sys
 import shutil
 import subprocess
+import sys
 from multiprocessing import Pool
 from pathlib import Path
-from typing import List, Optional, Dict, IO
+from typing import IO, Dict, List, Optional
 
 import click
 from github import Github
 
-from autopr import (
-    database,
-    util,
-    config,
-    github,
-)
-
+from autopr import config, database, github, util
 from autopr.database import Repository
 from autopr.util import CliException, error
 from autopr.workdir import WorkDir, write_database
@@ -100,7 +94,7 @@ def pull_repository(
         try:
             _git_pull(repo_dir)
         except CliException as e:
-            util.debug(f"Failed to clone: {e}")
+            util.debug(f"Failed to pull: {e}")
             pull_failed = True
 
     if pull_failed:
@@ -177,7 +171,7 @@ def commit_and_push_changes(
 def run_cmd(cmd: List[str], additional_env: Optional[Dict[str, str]] = None) -> str:
     env = None
     if additional_env:
-        env = os.environ.copy()
+        env = {}
         env.update(additional_env)
 
     try:
@@ -189,7 +183,7 @@ def run_cmd(cmd: List[str], additional_env: Optional[Dict[str, str]] = None) -> 
         ).decode()
     except subprocess.CalledProcessError as exc:
         raise CliException(
-            f"Command {' '.join(cmd)} failed (code: {exc.returncode}):\n{exc.output}"
+            f"Command {' '.join(cmd)} failed (code: {exc.returncode}):\n{exc.output.decode()}"
         )
 
 
