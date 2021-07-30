@@ -20,7 +20,7 @@ jobs:
     - name: Install pipenv
       run: python -m pip install --upgrade pipenv wheel
     - name: Install pip dependencies
-      run: pipenv install -d
+      run: pipenv sync -d
     - name: Run tests
       run: pipenv run pytest --cov-report xml --cov=autopr test/ -v
     - name: Upload coverage
@@ -40,7 +40,7 @@ jobs:
     - name: Install pipenv
       run: python -m pip install --upgrade pipenv wheel
     - name: Install pip dependencies
-      run: pipenv install -d
+      run: pipenv sync -d
     - name: Run pre-commit
       run: pipenv run pre-commit run --all-files --show-diff-on-failure
   check-dependency-sync:
@@ -54,6 +54,6 @@ jobs:
     - name: Install pipenv
       run: python -m pip install --upgrade pipenv wheel
     - name: Install pip dependencies
-      run: pipenv install -d
+      run: pipenv sync -d
     - name: Check package sync
       run: pipenv run pipenv-setup check

@@ -100,7 +100,7 @@ def pull_repository(
         try:
             _git_pull(repo_dir)
         except CliException as e:
-            util.debug(f"Failed to clone: {e}")
+            util.debug(f"Failed to pull: {e}")
             pull_failed = True
 
     if pull_failed:
@@ -177,7 +177,7 @@ def commit_and_push_changes(
 def run_cmd(cmd: List[str], additional_env: Optional[Dict[str, str]] = None) -> str:
     env = None
     if additional_env:
-        env = os.environ.copy()
+        env = {}
         env.update(additional_env)
 
     try:
@@ -189,7 +189,7 @@ def run_cmd(cmd: List[str], additional_env: Optional[Dict[str, str]] = None) -> 
         ).decode()
     except subprocess.CalledProcessError as exc:
         raise CliException(
-            f"Command {' '.join(cmd)} failed (code: {exc.returncode}):\n{exc.output}"
+            f"Command {' '.join(cmd)} failed (code: {exc.returncode}):\n{exc.output.decode()}"
         )
 
 
