@@ -33,7 +33,6 @@ setuptools = "*"
 wheel = "*"
 pre-commit = "*"
 coverage = "*"
-pipenv-setup = "*"
 pytest-cov = "*"
 
 [build-system]
