@@ -1,12 +1,12 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
 
 from github import Github
 from github.PullRequest import PullRequest
 
-from autopr import database, config
+from autopr import config, database
 from autopr.util import CliException
 
 

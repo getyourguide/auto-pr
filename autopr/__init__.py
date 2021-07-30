@@ -1,15 +1,15 @@
 import os
 import time
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 import click
 
-from autopr import workdir, config, github, repo, database
+from autopr import config, database, github, repo, workdir
 
 __version__ = "1.0.0"
 
-from autopr.util import CliException, set_debug, error, is_debug
+from autopr.util import CliException, error, is_debug, set_debug
 
 DEFAULT_PUSH_DELAY = 30.0
 WORKDIR: workdir.WorkDir
@@ -82,7 +82,7 @@ def cli(wd_path: str, debug: bool):
     help="Path to the SSH key to use when pushing to GitHub",
 )
 def init(api_key: str, ssh_key_file: str):
-    """ Initialise configuration and database """
+    """Initialise configuration and database"""
     credentials = config.Credentials(api_key=api_key, ssh_key_file=ssh_key_file)
     workdir.init(WORKDIR, credentials)
 
@@ -108,7 +108,7 @@ def init(api_key: str, ssh_key_file: str):
     help="How many repositories to pull in parallel",
 )
 def pull(fetch_repo_list: bool, update_repos: bool, process_count: int):
-    """ Pull down repositories based on configuration """
+    """Pull down repositories based on configuration"""
     cfg = workdir.read_config(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
     user = github.get_user(gh)
@@ -151,7 +151,7 @@ def pull(fetch_repo_list: bool, update_repos: bool, process_count: int):
     help="Whether to pull repositories before testing",
 )
 def test(pull_repos: bool):
-    """ Check what expected diff will be for command execution """
+    """Check what expected diff will be for command execution"""
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
@@ -184,7 +184,7 @@ def test(pull_repos: bool):
     help="Delay in seconds between pushing changes to repositories",
 )
 def run(pull_repos: bool, push_delay: Optional[float]):
-    """ Run update logic and create pull requests if changes made """
+    """Run update logic and create pull requests if changes made"""
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
@@ -213,7 +213,7 @@ def run(pull_repos: bool, push_delay: Optional[float]):
 
 @cli.command()
 def reset():
-    """ Mark all mapped repositories as not done """
+    """Mark all mapped repositories as not done"""
     db = workdir.read_database(WORKDIR)
     db.reset()
     workdir.write_database(WORKDIR, db)
@@ -290,14 +290,14 @@ def _set_all_pull_requests_state(state: github.PullRequestState):
 
 @cli.command()
 def close():
-    """ Close all open pull requests """
+    """Close all open pull requests"""
     _set_all_pull_requests_state(github.PullRequestState.CLOSED)
     click.secho("Finished closing all open pull requests")
 
 
 @cli.command()
 def reopen():
-    """ Reopen all un-merged pull requests """
+    """Reopen all un-merged pull requests"""
     _set_all_pull_requests_state(github.PullRequestState.OPEN)
     click.secho("Finished reopening all closed unmerged pull requests")
 

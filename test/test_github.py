@@ -1,10 +1,8 @@
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
-
-from autopr.config import Filter, FILTER_MODE_ADD, FILTER_MODE_REMOVE
+from autopr.config import FILTER_MODE_ADD, FILTER_MODE_REMOVE, Filter
 from autopr.database import Repository
-
-from autopr.github import gather_repository_list, FilterInfo
+from autopr.github import FilterInfo, gather_repository_list
 
 
 @patch("autopr.github._list_all_repositories")

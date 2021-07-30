@@ -1,22 +1,16 @@
 import io
 import os
-import sys
 import shutil
 import subprocess
+import sys
 from multiprocessing import Pool
 from pathlib import Path
-from typing import List, Optional, Dict, IO
+from typing import IO, Dict, List, Optional
 
 import click
 from github import Github
 
-from autopr import (
-    database,
-    util,
-    config,
-    github,
-)
-
+from autopr import config, database, github, util
 from autopr.database import Repository
 from autopr.util import CliException, error
 from autopr.workdir import WorkDir, write_database
