@@ -124,7 +124,7 @@ def test_gather_repository_list_filter_archived_remove(
     result = gather_repository_list(
         Mock(),
         filters=[
-            Filter(FILTER_MODE_ADD, match_owner="owner"),
+            Filter(FILTER_MODE_ADD, match_owner=".+"),
             Filter(FILTER_MODE_REMOVE, archived=True),
         ],
     )
@@ -178,7 +178,7 @@ def test_gather_repository_list_filter_name_remove(mock_list_all_repositories: M
     result = gather_repository_list(
         Mock(),
         filters=[
-            Filter(FILTER_MODE_ADD, match_owner="owner"),
+            Filter(FILTER_MODE_ADD, match_owner=".+"),
             Filter(FILTER_MODE_REMOVE, match_name=["^bad.*"]),
         ],
     )
@@ -232,7 +232,7 @@ def test_gather_repository_list_filter_owner_remove(mock_list_all_repositories: 
     result = gather_repository_list(
         Mock(),
         filters=[
-            Filter(FILTER_MODE_ADD, match_owner=".*"),
+            Filter(FILTER_MODE_ADD, match_owner=".+"),
             Filter(FILTER_MODE_REMOVE, match_owner="^fred*"),
         ],
     )
