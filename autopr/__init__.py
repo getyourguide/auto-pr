@@ -7,10 +7,13 @@ import click
 from single_source import get_version
 
 from autopr import workdir, config, github, repo, database
-
-__version__ = get_version(__name__, Path(__file__).parent.parent)
-
 from autopr.util import CliException, set_debug, error, is_debug
+
+
+__version__ = get_version(
+    "auto-pr",
+    Path(__file__).parent.parent,
+)
 
 DEFAULT_PUSH_DELAY = 30.0
 WORKDIR: workdir.WorkDir
