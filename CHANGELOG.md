@@ -41,7 +41,6 @@
 ### Fixed
 -   Only show diff if it exists (#22)
 
-
 ## 0.1.2
 
 Initial release.
