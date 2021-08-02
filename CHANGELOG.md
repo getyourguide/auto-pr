@@ -5,6 +5,7 @@
 ### Fixed
 -   Correct debug log on repository pull (#44)
 -   Don't copy user env into sub-processes (#44)
+-   Fix email access from GitHub API (#51)
 
 ### Updated
 -   Improved error output on command failures (#44)

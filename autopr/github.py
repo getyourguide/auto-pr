@@ -37,8 +37,9 @@ def get_user(gh: Github) -> database.GitUser:
     emails = gh_user.get_emails()
     primary_email = None
     for email in emails:
-        if email.get("primary"):
-            primary_email = email["email"]
+        if email.primary:
+            primary_email = email.email
+            break
 
     user_name = name or login
     if user_name is None or primary_email is None:
