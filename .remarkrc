@@ -1,0 +1,8 @@
+{
+  "plugins": [
+    "remark-preset-lint-recommended",
+    "remark-lint-no-consecutive-blank-lines",
+    ["remark-lint-no-duplicate-headings", false],
+    ["remark-lint-list-item-spacing", false]
+  ]
+}
