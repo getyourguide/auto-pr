@@ -1,15 +1,15 @@
 import subprocess
 from pathlib import Path
-from typing import List, Optional, Dict
-from unittest.mock import patch, Mock
-
-from autopr import workdir
 from test.test_utils import (
+    init_git_repos,
     run_cli,
     simple_test_config,
     simple_test_database,
-    init_git_repos,
 )
+from typing import Dict, List, Optional
+from unittest.mock import Mock, patch
+
+from autopr import workdir
 
 
 def _test_cmd(

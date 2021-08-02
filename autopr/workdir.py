@@ -4,8 +4,8 @@ from pathlib import Path
 import yaml
 from marshmallow import ValidationError
 
-from autopr.util import CliException, warning
 from autopr import config, database
+from autopr.util import CliException, warning
 
 CONFIG_FILE_NAME = "config.yaml"
 DB_FILE_NAME = "db.json"

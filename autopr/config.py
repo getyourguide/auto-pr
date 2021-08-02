@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
-import marshmallow_dataclass
 
+import marshmallow_dataclass
 
 DEFAULT_PR_TITLE = "Automatically generated PR"
 DEFAULT_PR_MESSAGE = "Automatically generated commit"

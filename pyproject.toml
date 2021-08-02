@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "auto-pr"
+version = "1.0.1"
+description = "Perform bulk updates across repositories"
+license = "Apache-2.0"
+
+authors = ["GetYourGuide GmbH"]
+
+readme = "README.md"
+repository = "https://github.com/getyourguide/auto-pr"
+homepage = "https://github.com/getyourguide/auto-pr"
+
+packages = [
+    { include = "autopr" },
+]
+
+[tool.poetry.scripts]
+auto-pr = "autopr:main"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+marshmallow = "*"
+marshmallow-dataclass = "*"
+click = "*"
+pygithub = "*"
+pyyaml = "*"
+single-source = "^0.2.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-socket = "*"
+setuptools = "*"
+wheel = "*"
+pre-commit = "*"
+coverage = "*"
+pytest-cov = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,12 +1,12 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
 
 from github import Github
 from github.PullRequest import PullRequest
 
-from autopr import database, config
+from autopr import config, database
 from autopr.util import CliException
 
 
@@ -37,8 +37,9 @@ def get_user(gh: Github) -> database.GitUser:
     emails = gh_user.get_emails()
     primary_email = None
     for email in emails:
-        if email.get("primary"):
-            primary_email = email["email"]
+        if email.primary:
+            primary_email = email.email
+            break
 
     user_name = name or login
     if user_name is None or primary_email is None:
