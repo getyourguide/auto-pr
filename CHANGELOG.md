@@ -1,6 +1,6 @@
 # Changelog
 
-## _Unreleased_
+## 1.0.1
 
 ### Fixed
 -   Correct debug log on repository pull (#44)
