@@ -19,11 +19,11 @@ auto-pr = "autopr:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-marshmallow = "*"
-marshmallow-dataclass = "*"
-click = "*"
-pygithub = "*"
-pyyaml = "*"
+marshmallow = "^3.13.0"
+marshmallow-dataclass = "^8.5.0"
+click = "^8.0.1"
+PyYAML = "^5.4.1"
+PyGithub = "^1.55"
 single-source = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
