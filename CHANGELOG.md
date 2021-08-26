@@ -4,6 +4,7 @@
 
 ### Fixed
 -   Fix for user env into sub-processes
+-   Pin top-level dependencies (#54)
 
 ## 1.0.1
 
