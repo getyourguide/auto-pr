@@ -135,3 +135,6 @@ dmypy.json
 /config.yaml
 /db.json
 /repos/
+
+# Node
+/node_modules/

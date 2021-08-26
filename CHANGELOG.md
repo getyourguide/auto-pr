@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+### Fixed
+-   Fix for user env into sub-processes
+
 ## 1.0.1
 
 ### Fixed
@@ -40,7 +45,6 @@
 
 ### Fixed
 -   Only show diff if it exists (#22)
-
 
 ## 0.1.2
 
