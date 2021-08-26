@@ -171,7 +171,7 @@ def commit_and_push_changes(
 def run_cmd(cmd: List[str], additional_env: Optional[Dict[str, str]] = None) -> str:
     env = None
     if additional_env:
-        env = {}
+        env = os.environ.copy()
         env.update(additional_env)
 
     try:
