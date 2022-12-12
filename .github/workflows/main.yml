@@ -26,12 +26,6 @@ jobs:
       run: poetry install
     - name: Run tests
       run: poetry run pytest --cov-report xml --cov=autopr test/ -v
-    - name: Upload coverage
-      if: ${{ matrix.python-version == 3.9 && env.IS_COVERAGE_ALLOWED == 'true' && env.IS_MASTER_BRANCH == 'true' }}
-      uses: codacy/codacy-coverage-reporter-action@master
-      with:
-        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: coverage.xml
   lint:
     runs-on: ubuntu-18.04
     steps:
