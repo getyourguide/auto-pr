@@ -23,7 +23,7 @@ marshmallow = "3.13.0"
 marshmallow-dataclass = "8.5.3"
 click = "8.0.1"
 PyYAML = "5.4.1"
-PyGithub = "1.55"
+PyGithub = "1.58.2"
 single-source = "0.2.0"
 
 [tool.poetry.dev-dependencies]
