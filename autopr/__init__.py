@@ -229,8 +229,10 @@ def reset_all():
     click.secho("Repositories marked as not done")
 
 
-@reset.command(name="from", help="reset using a file listing of repos written as <owner>/<name>")
-@click.argument('file', type=click.File('r'))
+@reset.command(
+    name="from", help="reset using a file listing of repos written as <owner>/<name>"
+)
+@click.argument("file", type=click.File("r"))
 def reset_from(file):
     repos = map(lambda l: l.strip(), file.readlines())
     db = workdir.read_database(WORKDIR)
