@@ -66,7 +66,7 @@ class Database:
             if (repository.owner, repository.name) not in new_repos:
                 repository.removed = True
 
-    def reset_using(self, selected_repos):
+    def reset_from(self, selected_repos):
         resets = {name: False for name in selected_repos}
         for repository in self.repositories:
             id = f"{repository.owner}/{repository.name}"

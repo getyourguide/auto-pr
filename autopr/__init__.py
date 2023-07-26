@@ -234,7 +234,7 @@ def reset_all():
 def reset_from(file):
     repos = map(lambda l: l.strip(), file.readlines())
     db = workdir.read_database(WORKDIR)
-    db.reset_using(repos)
+    db.reset_from(repos)
     workdir.write_database(WORKDIR, db)
 
 
