@@ -239,7 +239,7 @@ def reset_from(file):
 
 
 def _print_repository_list(
-        title: str, repositories: List[database.Repository], total: int
+    title: str, repositories: List[database.Repository], total: int
 ):
     click.secho(f"{title} [{len(repositories)}/{total}]:", bold=True)
     for repository in repositories:
