@@ -214,17 +214,32 @@ def run(pull_repos: bool, push_delay: Optional[float]):
     click.secho(f"Done!", bold=True)
 
 
-@cli.command()
+@cli.group()
 def reset():
+    """Commands for resetting repos to allow for reruns"""
+    pass
+
+
+@reset.command(name="all")
+def reset_all():
     """Mark all mapped repositories as not done"""
     db = workdir.read_database(WORKDIR)
-    db.reset()
+    db.reset_all()
     workdir.write_database(WORKDIR, db)
     click.secho("Repositories marked as not done")
 
 
+@reset.command(name="from", help="reset using a file listing of repos written as <owner>/<name>")
+@click.argument('file', type=click.File('r'))
+def reset_from(file):
+    repos = map(lambda l: l.strip(), file.readlines())
+    db = workdir.read_database(WORKDIR)
+    db.reset_using(repos)
+    workdir.write_database(WORKDIR, db)
+
+
 def _print_repository_list(
-    title: str, repositories: List[database.Repository], total: int
+        title: str, repositories: List[database.Repository], total: int
 ):
     click.secho(f"{title} [{len(repositories)}/{total}]:", bold=True)
     for repository in repositories:

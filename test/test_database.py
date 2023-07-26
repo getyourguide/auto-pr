@@ -16,7 +16,7 @@ class DatabaseTest(unittest.TestCase):
 
     def test_reset_empty(self):
         db = Database(user=Mock(), repositories=[])
-        db.reset()
+        db.reset_all()
         self.assertEqual(0, len(db.repositories))
 
     def test_reset_non_empty(self):
@@ -35,7 +35,7 @@ class DatabaseTest(unittest.TestCase):
         self.assertTrue(db.repositories[0].done)
         self.assertFalse(db.repositories[1].done)
 
-        db.reset()
+        db.reset_all()
 
         self.assertFalse(db.repositories[0].done)
         self.assertFalse(db.repositories[1].done)

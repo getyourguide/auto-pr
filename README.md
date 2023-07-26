@@ -108,6 +108,16 @@ This will perform the changes to a branch on the locally cloned repository and p
 
 See `--help` for more information about other commands and their  usage.
 
+### Reset
+You can reset the list of repos in `db.json` using `auto-pr reset all`, or `auto-pr reset from FILE`
+
+When using `auto-pr reset from FILE`, the list of repos should be provided as a newline separated list of repos like `<owner>/<name>`, e.g:
+
+```text
+getyourguide/test
+getyourguide/auto-pr
+```
+
 ## Security
 
 For sensitive security matters please contact [security@getyourguide.com](mailto:security@getyourguide.com).
