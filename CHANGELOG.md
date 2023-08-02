@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.4
+- Extend `auto-pr reset` to `auto-pr reset all` and `auto-pr reset from FILE`
+  - `all` resets everything
+  - `from FILE` resets just repositories listed in the input file
+
 ## 1.0.2
 
 ### Fixed

@@ -50,7 +50,7 @@ def init_git_repos(wd: workdir.WorkDir, db: database.Database):
     for repository in db.repositories:
         repo_dir = wd.repos_dir / repository.name
         repo_dir.mkdir(parents=True, exist_ok=True)
-        subprocess.check_output(["git", "-C", f"{repo_dir}", "init"])
+        subprocess.check_output(["git", "-C", f"{repo_dir}", "init", "-b", "master"])
         subprocess.check_output(
             ["git", "-C", f"{repo_dir}", "config", "user.name", "Test"]
         )

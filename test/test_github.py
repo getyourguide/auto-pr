@@ -247,7 +247,6 @@ def _get_fake_repository_tuple(
     ssh_url: str = "git@gitgitgit.com/git/repo",
     default_branch: str = "master",
 ):
-
     filter_info = FilterInfo(owner=owner, name=name, public=public, archived=archived)
     repository = Repository(
         owner=owner, name=name, ssh_url=ssh_url, default_branch=default_branch

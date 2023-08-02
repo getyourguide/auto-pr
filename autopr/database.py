@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Dict, Iterator, List, Optional
 
 import marshmallow_dataclass
 
@@ -66,7 +66,20 @@ class Database:
             if (repository.owner, repository.name) not in new_repos:
                 repository.removed = True
 
-    def reset(self) -> None:
+    def reset_from(self, selected_repos: Iterator[str]):
+        resets: Dict[str, bool] = {name: False for name in selected_repos}
+        for repository in self.repositories:
+            repo_id = f"{repository.owner}/{repository.name}"
+            if repo_id in resets:
+                print(f"{repo_id} was reset")
+                resets[repo_id] = True
+                repository.done = False
+
+        for name, done in resets.items():
+            if not done:
+                print(f"{name} was not in the database")
+
+    def reset_all(self) -> None:
         for repository in self.repositories:
             repository.done = False
 

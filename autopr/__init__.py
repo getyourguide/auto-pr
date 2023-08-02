@@ -1,7 +1,7 @@
 import os
 import time
 from pathlib import Path
-from typing import List, Optional
+from typing import Iterator, List, Optional, TextIO
 
 import click
 from single_source import get_version
@@ -214,13 +214,30 @@ def run(pull_repos: bool, push_delay: Optional[float]):
     click.secho(f"Done!", bold=True)
 
 
-@cli.command()
+@cli.group()
 def reset():
+    """Commands for resetting repos to allow for reruns"""
+    pass
+
+
+@reset.command(name="all")
+def reset_all():
     """Mark all mapped repositories as not done"""
     db = workdir.read_database(WORKDIR)
-    db.reset()
+    db.reset_all()
     workdir.write_database(WORKDIR, db)
     click.secho("Repositories marked as not done")
+
+
+@reset.command(
+    name="from", help="reset using a file listing of repos written as <owner>/<name>"
+)
+@click.argument("file", type=click.File("r"))
+def reset_from(file: TextIO):
+    repos: Iterator[str] = map(lambda l: l.strip(), file.readlines())
+    db = workdir.read_database(WORKDIR)
+    db.reset_from(repos)
+    workdir.write_database(WORKDIR, db)
 
 
 def _print_repository_list(

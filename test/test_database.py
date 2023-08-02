@@ -16,13 +16,36 @@ class DatabaseTest(unittest.TestCase):
 
     def test_reset_empty(self):
         db = Database(user=Mock(), repositories=[])
-        db.reset()
+        db.reset_all()
         self.assertEqual(0, len(db.repositories))
 
+    def test_reset_from_list(self):
+        repo_first = get_repository("first", done=True)
+        repo_second = get_repository("second", done=True)
+        repo_third = get_repository("second", done=False)
+
+        db = Database(
+            user=Mock(),
+            repositories=[
+                repo_first,
+                repo_second,
+                repo_third,
+            ],
+        )
+
+        self.assertTrue(db.repositories[0].done)
+        self.assertTrue(db.repositories[1].done)
+        self.assertFalse(db.repositories[2].done)
+
+        db.reset_from(selected_repos=[f"{repo_first.owner}/{repo_first.name}"])
+
+        self.assertFalse(db.repositories[0].done)
+        self.assertTrue(db.repositories[1].done)
+        self.assertFalse(db.repositories[2].done)
+
     def test_reset_non_empty(self):
-        repo_first = get_repository("first")
-        repo_first.done = True
-        repo_second = get_repository("second")
+        repo_first = get_repository("first", done=True)
+        repo_second = get_repository("second", done=False)
 
         db = Database(
             user=Mock(),
@@ -35,7 +58,7 @@ class DatabaseTest(unittest.TestCase):
         self.assertTrue(db.repositories[0].done)
         self.assertFalse(db.repositories[1].done)
 
-        db.reset()
+        db.reset_all()
 
         self.assertFalse(db.repositories[0].done)
         self.assertFalse(db.repositories[1].done)
