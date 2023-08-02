@@ -1,7 +1,7 @@
 import os
 import time
 from pathlib import Path
-from typing import List, Optional
+from typing import Iterator, List, Optional, TextIO
 
 import click
 from single_source import get_version
@@ -233,8 +233,8 @@ def reset_all():
     name="from", help="reset using a file listing of repos written as <owner>/<name>"
 )
 @click.argument("file", type=click.File("r"))
-def reset_from(file):
-    repos = map(lambda l: l.strip(), file.readlines())
+def reset_from(file: TextIO):
+    repos: Iterator[str] = map(lambda l: l.strip(), file.readlines())
     db = workdir.read_database(WORKDIR)
     db.reset_from(repos)
     workdir.write_database(WORKDIR, db)
