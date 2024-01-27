@@ -4,7 +4,7 @@
   "devDependencies": {
     "remark-cli": "^10.0.0",
     "remark-lint-list-item-spacing": "^4.1.0",
-    "remark-lint-no-consecutive-blank-lines": "^4.1.1",
+    "remark-lint-no-consecutive-blank-lines": "^4.1.3",
     "remark-lint-no-duplicate-headings": "^3.1.0",
     "remark-preset-lint-recommended": "^6.1.0"
   },
