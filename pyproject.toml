@@ -19,7 +19,7 @@ auto-pr = "autopr:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-marshmallow = "3.13.0"
+marshmallow = "3.21.0"
 marshmallow-dataclass = "8.5.3"
 click = "8.0.1"
 PyYAML = "6.0.1"
