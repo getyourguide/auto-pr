@@ -722,13 +722,13 @@ testing = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metad
 
 [[package]]
 name = "single-source"
-version = "0.2.0"
+version = "0.4.0"
 description = "Access to the project version in Python code for PEP 621-style projects"
 optional = false
-python-versions = ">=3.6,<4.0"
+python-versions = "<4.0,>=3.8"
 files = [
-    {file = "single-source-0.2.0.tar.gz", hash = "sha256:f40f94c7f2e72c854b9c0c6f7d6b545d74ada9ebd454f9f07f8fb743b22bccf5"},
-    {file = "single_source-0.2.0-py3-none-any.whl", hash = "sha256:82c55b00515a30c8f7c262b986a399ca023911ebb6a86f0953d4c50448c36b16"},
+    {file = "single_source-0.4.0-py3-none-any.whl", hash = "sha256:38880b16e6e0ca2e012f85dc3820eb31999ace5f1d9a588395ea38f8bd0775f5"},
+    {file = "single_source-0.4.0.tar.gz", hash = "sha256:7917aa113bda60072f01952e2966cd7247f0ec16fe52a1555f3c066b553e98b4"},
 ]
 
 [[package]]
@@ -901,4 +901,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "bb3cee1db9137ee4174b2981c5fd29e34221436b62ead796be17ee62e800b8b7"
+content-hash = "0080d6398bf77fe0ade42875fc3e48f3b93c28c4f65cc43f4ae39ce475908a81"
