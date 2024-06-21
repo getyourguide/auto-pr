@@ -16,6 +16,7 @@ __version__ = get_version(
 
 DEFAULT_PUSH_DELAY = 30.0
 WORKDIR: workdir.WorkDir
+USER_EMAIL = None
 
 
 def main():
@@ -59,10 +60,20 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
     is_flag=True,
     help="Whether to enable debug mode or not",
 )
+@click.option(
+    "--user-email",
+    "user_email",
+    envvar="APR_USER_EMAIL",
+    type=str,
+    default=None,
+    help="User email used to publish the PRs, overrides primary email from GitHub settings."
+)
 @click.version_option(__version__, message="%(prog)s: %(version)s")
-def cli(wd_path: str, debug: bool):
+def cli(wd_path: str, debug: bool, user_email: str):
     global WORKDIR
     WORKDIR = workdir.get(wd_path)
+    global USER_EMAIL
+    USER_EMAIL = user_email
     set_debug(debug)
 
 
@@ -114,7 +125,7 @@ def pull(fetch_repo_list: bool, update_repos: bool, process_count: int):
     """Pull down repositories based on configuration"""
     cfg = workdir.read_config(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
-    user = github.get_user(gh)
+    user = github.get_user(gh, USER_EMAIL)
 
     click.secho(f"Running under user '{user.name}' with email '{user.email}'")
 

@@ -28,18 +28,21 @@ def create_github_client(api_key: str) -> Github:
     return gh
 
 
-def get_user(gh: Github) -> database.GitUser:
+def get_user(gh: Github, user_email: str) -> database.GitUser:
     gh_user = gh.get_user()
 
     login = gh_user.login  # need to do this first to trigger lazy loading
     name = gh_user.name
 
-    emails = gh_user.get_emails()
-    primary_email = None
-    for email in emails:
-        if email.primary:
-            primary_email = email.email
-            break
+    if user_email is None:
+        emails = gh_user.get_emails()
+        primary_email = None
+        for email in emails:
+            if email.primary:
+                primary_email = email.email
+                break
+    else:
+        primary_email: user_email
 
     user_name = name or login
     if user_name is None or primary_email is None:
