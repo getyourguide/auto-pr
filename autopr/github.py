@@ -36,9 +36,9 @@ def get_user(gh: Github, use_global_git_config: bool = False) -> database.GitUse
     name = gh_user.name
 
     if use_global_git_config:
-        primary_email = _git_get_global_config('user.email')
-        name = _git_get_global_config('user.name')
-        if not user_name or not primary_email:
+        primary_email = _git_get_global_config('user.email').strip()
+        name = _git_get_global_config('user.name').strip()
+        if not name or not primary_email:
             raise CliException(
                 "You don't have a globally set Git config. " \
                 "Please set your config with `git config --global user.email <EMAIL>` or `git config --global user.name <NAME>`"
