@@ -16,6 +16,7 @@ __version__ = get_version(
 
 DEFAULT_PUSH_DELAY = 30.0
 WORKDIR: workdir.WorkDir
+USE_GLOBAL_GIT_CONFIG = False
 
 
 def main():
@@ -53,6 +54,13 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
     help="Working directory to store configuration and repositories",
 )
 @click.option(
+    "--use-global-git-config/--use-primary-email-git-config",
+    envvar="APR_USE_GLOBAL_GIT_CONFIG",
+    default=False,
+    is_flag=True,
+    help="Whether to use the already globally set git config or the primary email of the authenticated Github user",
+)
+@click.option(
     "--debug/--no-debug",
     envvar="APR_DEBUG",
     default=False,
@@ -60,9 +68,11 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
     help="Whether to enable debug mode or not",
 )
 @click.version_option(__version__, message="%(prog)s: %(version)s")
-def cli(wd_path: str, debug: bool):
+def cli(wd_path: str, use_global_git_config: bool, debug: bool):
     global WORKDIR
     WORKDIR = workdir.get(wd_path)
+    global WORKDIR
+    USE_GLOBAL_GIT_CONFIG = use_global_git_config
     set_debug(debug)
 
 
