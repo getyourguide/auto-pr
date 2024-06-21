@@ -7,6 +7,7 @@ from github import Github
 from github.PullRequest import PullRequest
 
 from autopr import config, database
+from autopr.repo import _git_get_global_config
 from autopr.util import CliException
 
 
@@ -28,24 +29,33 @@ def create_github_client(api_key: str) -> Github:
     return gh
 
 
-def get_user(gh: Github) -> database.GitUser:
+def get_user(gh: Github, use_global_git_config: bool = False) -> database.GitUser:
     gh_user = gh.get_user()
 
     login = gh_user.login  # need to do this first to trigger lazy loading
     name = gh_user.name
 
-    emails = gh_user.get_emails()
-    primary_email = None
-    for email in emails:
-        if email.primary:
-            primary_email = email.email
-            break
+    if use_global_git_config:
+        primary_email = _git_get_global_config("user.email").strip()
+        name = _git_get_global_config("user.name").strip()
+        if not name or not primary_email:
+            raise CliException(
+                "You don't have a globally set Git config. "
+                "Please set your config with `git config --global user.email <EMAIL>` or `git config --global user.name <NAME>`"
+            )
+    else:
+        emails = gh_user.get_emails()
+        primary_email = None
+        for email in emails:
+            if email.primary:
+                primary_email = email.email
+                break
 
-    user_name = name or login
-    if user_name is None or primary_email is None:
-        raise CliException(
-            "Please provide an API key with access to the user name and email address."
-        )
+        user_name = name or login
+        if user_name is None or primary_email is None:
+            raise CliException(
+                "Please provide an API key with access to the user name and email address."
+            )
 
     user = database.GitUser(name=name or login, email=primary_email)
     return user

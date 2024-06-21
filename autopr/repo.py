@@ -229,6 +229,10 @@ def _git_config(repo_dir: Path, key: str, value: str) -> None:
     run_cmd(["git", "-C", f"{repo_dir}", "config", key, value])
 
 
+def _git_get_global_config(key: str) -> str:
+    return run_cmd(["git", "config", "--global", key])
+
+
 def _git_staged_diff(repo_dir: Path) -> str:
     return run_cmd(
         ["git", "-c", "color.ui=always", "-C", f"{repo_dir}", "diff", "--staged"]
