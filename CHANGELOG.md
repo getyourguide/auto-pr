@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.6
+- Add `--use-global-git-config` when running `auto-pr pull`
+  - Allows you to use the globally set git config in your device instead of using the authenticated Github user's primary email
+
 ## 1.0.4
 - Extend `auto-pr reset` to `auto-pr reset all` and `auto-pr reset from FILE`
   - `all` resets everything
