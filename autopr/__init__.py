@@ -114,9 +114,14 @@ def init(api_key: str, ssh_key_file: str):
     "--use-global-git-config/--use-primary-email-git-config",
     default=False,
     is_flag=True,
-    help="Whether to use the already globally set git config or the primary email of the authenticated Github user. If you have already pulled the repos locally, you also need to pass --update-repos to update the git config in the repos."
+    help="Whether to use the already globally set git config or the primary email of the authenticated Github user. If you have already pulled the repos locally, you also need to pass --update-repos to update the git config in the repos.",
 )
-def pull(fetch_repo_list: bool, update_repos: bool, process_count: int, use_global_git_config: bool):
+def pull(
+    fetch_repo_list: bool,
+    update_repos: bool,
+    process_count: int,
+    use_global_git_config: bool,
+):
     """Pull down repositories based on configuration"""
     cfg = workdir.read_config(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
