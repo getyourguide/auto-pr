@@ -16,7 +16,6 @@ __version__ = get_version(
 
 DEFAULT_PUSH_DELAY = 30.0
 WORKDIR: workdir.WorkDir
-USE_GLOBAL_GIT_CONFIG = False
 
 
 def main():
@@ -54,13 +53,6 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
     help="Working directory to store configuration and repositories",
 )
 @click.option(
-    "--use-global-git-config/--use-primary-email-git-config",
-    envvar="APR_USE_GLOBAL_GIT_CONFIG",
-    default=False,
-    is_flag=True,
-    help="Whether to use the already globally set git config or the primary email of the authenticated Github user",
-)
-@click.option(
     "--debug/--no-debug",
     envvar="APR_DEBUG",
     default=False,
@@ -68,11 +60,9 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
     help="Whether to enable debug mode or not",
 )
 @click.version_option(__version__, message="%(prog)s: %(version)s")
-def cli(wd_path: str, use_global_git_config: bool, debug: bool):
+def cli(wd_path: str, debug: bool):
     global WORKDIR
     WORKDIR = workdir.get(wd_path)
-    global WORKDIR
-    USE_GLOBAL_GIT_CONFIG = use_global_git_config
     set_debug(debug)
 
 
@@ -120,11 +110,17 @@ def init(api_key: str, ssh_key_file: str):
     type=int,
     help="How many repositories to pull in parallel",
 )
-def pull(fetch_repo_list: bool, update_repos: bool, process_count: int):
+@click.option(
+    "--use-global-git-config/--use-primary-email-git-config",
+    default=False,
+    is_flag=True,
+    help="Whether to use the already globally set git config or the primary email of the authenticated Github user. If you have already pulled the repos locally, you also need to pass --update-repos to update the git config in the repos."
+)
+def pull(fetch_repo_list: bool, update_repos: bool, process_count: int, use_global_git_config: bool):
     """Pull down repositories based on configuration"""
     cfg = workdir.read_config(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
-    user = github.get_user(gh)
+    user = github.get_user(gh, use_global_git_config)
 
     click.secho(f"Running under user '{user.name}' with email '{user.email}'")
 

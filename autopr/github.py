@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Tuple
 
-from . import USE_GLOBAL_GIT_CONFIG
-
 from github import Github
 from github.PullRequest import PullRequest
 
@@ -31,13 +29,13 @@ def create_github_client(api_key: str) -> Github:
     return gh
 
 
-def get_user(gh: Github) -> database.GitUser:
+def get_user(gh: Github, use_global_git_config: bool = False) -> database.GitUser:
     gh_user = gh.get_user()
 
     login = gh_user.login  # need to do this first to trigger lazy loading
     name = gh_user.name
 
-    if USE_GLOBAL_GIT_CONFIG:
+    if use_global_git_config:
         primary_email = _git_get_global_config('user.email')
         name = _git_get_global_config('user.name')
         if not user_name or not primary_email:

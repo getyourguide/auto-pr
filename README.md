@@ -92,6 +92,8 @@ This will generate a `db.json` file within your workdir containing a list of map
 
 This command can be run multiple times, if there are new matching repositories found they will be merged into the existing database.
 
+If you would like to use your globally set config, you can pass the option `--use-global-git-config` when pulling the repos. If you had already pulled the repos before this and you would like to change the config for those repos, you would also need to pass `--update-repos` alongside the global-git-config option when pulling.
+
 ### Test
 
 Once the `pull` command has finished setting up the work directory you can now run test to check what the changes that will be made by the script will yield.
@@ -105,6 +107,12 @@ auto-pr run
 ```
 
 This will perform the changes to a branch on the locally cloned repository and push the branch upstream with the information you provided within `config.yaml`.
+
+By default, the commits will be associated with your primary email and name, which were set on the repo level for those repos when you ran `auto-pr pull`. If you would like to use your global git config for the repos that you already pulled, you need to run pull again with:
+
+```
+auto-pr pull --update-repos --use-global-git-config
+```
 
 See `--help` for more information about other commands and their  usage.
 
