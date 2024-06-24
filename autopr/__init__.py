@@ -266,7 +266,13 @@ def _print_repository_list(
 
 
 @cli.command()
-def status():
+@click.option(
+    "--exclude-missing/--include-missing",
+    default=False,
+    is_flag=True,
+    help="Whether the `Missing PRs` section should be excluded from status.",
+)
+def status(exclude_missing: bool):
     cfg = workdir.read_config(WORKDIR)
     db = workdir.read_database(WORKDIR)
     gh = github.create_github_client(cfg.credentials.api_key)
@@ -300,7 +306,8 @@ def status():
     _print_repository_list("Merged PRs", pr_merged, total)
     _print_repository_list("Closed PRs", pr_closed, total)
     _print_repository_list("Open PRs", pr_open, total)
-    _print_repository_list("Missing PRs", pr_missing, total)
+    if not exclude_missing:
+        _print_repository_list("Missing PRs", pr_missing, total)
 
 
 def _set_all_pull_requests_state(state: github.PullRequestState):
