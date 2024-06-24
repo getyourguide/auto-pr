@@ -1,6 +1,6 @@
 # Changelog
 
-## _Unreleased_
+## 1.0.7
 - Add `--exclude-missing` when running `auto-pr status`
   - Allows you to remove the `Missing PRs` section from the output
 
