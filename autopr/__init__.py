@@ -268,9 +268,9 @@ def _print_repository_list(
 @cli.command()
 @click.option(
     "--exclude-missing/--include-missing",
-    default=True,
+    default=False,
     is_flag=True,
-    help="Whether the `Missing PRs` section should be shown.",
+    help="Whether the `Missing PRs` section should be excluded from status.",
 )
 def status(exclude_missing: bool):
     cfg = workdir.read_config(WORKDIR)
