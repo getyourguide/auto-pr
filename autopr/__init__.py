@@ -339,6 +339,7 @@ def reopen():
     _set_all_pull_requests_state(github.PullRequestState.OPEN)
     click.secho("Finished reopening all closed unmerged pull requests")
 
+
 @cli.command()
 def merge():
     """Merge all mergeable pull requests"""
@@ -355,7 +356,7 @@ def merge():
                     if len(commits) == 0:
                         click.secho(f"Pull request {repository.name} has no commits")
                         break
-                        
+
                     ok = True
                     check_suites = commits[-1].get_check_suites()
                     for check in check_suites:
@@ -364,8 +365,14 @@ def merge():
                         if check.status != "completed" or check.conclusion != "success":
                             check_runs = check.get_check_runs()
                             for check_run in check_runs:
-                                if check_run.status != "completed" or check_run.conclusion not in ("success", "skipped"):
-                                    click.secho(f"Pull request {repository.name} has a check `{check_run.name}` (conclusion: {check_run.conclusion}) that is not successful")
+                                if (
+                                    check_run.status != "completed"
+                                    or check_run.conclusion
+                                    not in ("success", "skipped")
+                                ):
+                                    click.secho(
+                                        f"Pull request {repository.name} has a check `{check_run.name}` (conclusion: {check_run.conclusion}) that is not successful"
+                                    )
                                     ok = False
                     if not ok:
                         continue
@@ -378,7 +385,6 @@ def merge():
                     click.secho(f"Pull request {repository.name} is not mergeable")
             else:
                 click.secho(f"Pull request {repository.name} is not open")
-            
 
 
 if __name__ == "__main__":
