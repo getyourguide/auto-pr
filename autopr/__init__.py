@@ -377,6 +377,7 @@ def merge():
                     if not ok:
                         continue
                     try:
+                        click.secho(f"Attempting to merge {repository.name}")
                         pr.merge(merge_method="squash")
                         click.secho(f"Merged {repository.name}")
                     except ValueError as e:
