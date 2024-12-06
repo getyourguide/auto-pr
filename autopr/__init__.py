@@ -339,6 +339,29 @@ def reopen():
     _set_all_pull_requests_state(github.PullRequestState.OPEN)
     click.secho("Finished reopening all closed unmerged pull requests")
 
+@cli.command()
+def merge():
+    """Merge all mergeable pull requests"""
+    cfg = workdir.read_config(WORKDIR)
+    db = workdir.read_database(WORKDIR)
+    gh = github.create_github_client(cfg.credentials.api_key)
+
+    for repository in db.repositories:
+        if repository.existing_pr is not None:
+            details = github.get_pull_request(gh, repository)
+            if details.state == github.PullRequestState.OPEN.value:
+                if details.mergeable:
+                    try:
+                        github.merge_pull_request(gh, repository)
+                        click.secho(f"Merged {repository.name}")
+                    except ValueError as e:
+                        click.secho(f"{e}")
+                else:
+                    click.secho(f"Pull request {repository.name} is not mergeable")
+            else:
+                click.secho(f"Pull request {repository.name} is not open")
+            
+
 
 if __name__ == "__main__":
     main()
