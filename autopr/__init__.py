@@ -348,11 +348,29 @@ def merge():
 
     for repository in db.repositories:
         if repository.existing_pr is not None:
-            details = github.get_pull_request(gh, repository)
-            if details.state == github.PullRequestState.OPEN.value:
-                if details.mergeable:
+            pr = github.get_pull_request(gh, repository)
+            if pr.state == github.PullRequestState.OPEN.value:
+                if pr.mergeable:
+                    commits = list(pr.get_commits())
+                    if len(commits) == 0:
+                        click.secho(f"Pull request {repository.name} has no commits")
+                        break
+                        
+                    ok = True
+                    check_suites = commits[-1].get_check_suites()
+                    for check in check_suites:
+                        if check.status == "queued":
+                            continue
+                        if check.status != "completed" or check.conclusion != "success":
+                            check_runs = check.get_check_runs()
+                            for check_run in check_runs:
+                                if check_run.status != "completed" or check_run.conclusion != "success":
+                                    click.secho(f"Pull request {repository.name} has a check {check_run.name} (conclusion: {check_run.conclusion}) that is not successful")
+                                    ok = False
+                    if not ok:
+                        continue
                     try:
-                        github.merge_pull_request(gh, repository)
+                        #details.merge()
                         click.secho(f"Merged {repository.name}")
                     except ValueError as e:
                         click.secho(f"{e}")
