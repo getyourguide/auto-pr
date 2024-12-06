@@ -364,7 +364,7 @@ def merge():
                         if check.status != "completed" or check.conclusion != "success":
                             check_runs = check.get_check_runs()
                             for check_run in check_runs:
-                                if check_run.status != "completed" or check_run.conclusion != "success":
+                                if check_run.status != "completed" or check_run.conclusion not in ("success", "skipped"):
                                     click.secho(f"Pull request {repository.name} has a check {check_run.name} (conclusion: {check_run.conclusion}) that is not successful")
                                     ok = False
                     if not ok:
