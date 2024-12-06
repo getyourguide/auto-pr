@@ -365,12 +365,12 @@ def merge():
                             check_runs = check.get_check_runs()
                             for check_run in check_runs:
                                 if check_run.status != "completed" or check_run.conclusion not in ("success", "skipped"):
-                                    click.secho(f"Pull request {repository.name} has a check {check_run.name} (conclusion: {check_run.conclusion}) that is not successful")
+                                    click.secho(f"Pull request {repository.name} has a check `{check_run.name}` (conclusion: {check_run.conclusion}) that is not successful")
                                     ok = False
                     if not ok:
                         continue
                     try:
-                        #details.merge()
+                        pr.merge(merge_method="squash")
                         click.secho(f"Merged {repository.name}")
                     except ValueError as e:
                         click.secho(f"{e}")
