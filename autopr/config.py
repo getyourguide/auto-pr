@@ -15,11 +15,10 @@ FILTER_MODE_REMOVE = "remove"
 FILTER_VISIBILITY_PUBLIC = "public"
 FILTER_VISIBILITY_PRIVATE = "private"
 
-
 @dataclass
 class Credentials:
     ssh_key_file: str
-    api_key: str = environ.get("APR_API_KEY", "")
+    api_key: str = field(default_factory=( lambda: environ.get('APR_API_KEY', '')))
 
 
 CREDENTIALS_SCHEMA = marshmallow_dataclass.class_schema(Credentials)()
