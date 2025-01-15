@@ -59,6 +59,8 @@ update_command:
   - my-file
 ```
 
+If you wish to keep your API Key outside of `config.yaml`, set the env var `APR_API_KEY` with your GitHub Token
+
 ### Repositories
 
 You can define the list of repositories to pull and build into the database to update using a list of rules.
