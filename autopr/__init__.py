@@ -340,5 +340,53 @@ def reopen():
     click.secho("Finished reopening all closed unmerged pull requests")
 
 
+@cli.command()
+def merge():
+    """Merge all mergeable pull requests"""
+    cfg = workdir.read_config(WORKDIR)
+    db = workdir.read_database(WORKDIR)
+    gh = github.create_github_client(cfg.credentials.api_key)
+
+    for repository in db.repositories:
+        if repository.existing_pr is not None:
+            pr = github.get_pull_request(gh, repository)
+            if pr.state == github.PullRequestState.OPEN.value:
+                if pr.mergeable:
+                    commits = list(pr.get_commits())
+                    if len(commits) == 0:
+                        click.secho(f"Pull request {repository.name} has no commits")
+                        break
+
+                    ok = True
+                    check_suites = commits[-1].get_check_suites()
+                    for check in check_suites:
+                        if check.status == "queued":
+                            continue
+                        if check.status != "completed" or check.conclusion != "success":
+                            check_runs = check.get_check_runs()
+                            for check_run in check_runs:
+                                if (
+                                    check_run.status != "completed"
+                                    or check_run.conclusion
+                                    not in ("success", "skipped")
+                                ):
+                                    click.secho(
+                                        f"Pull request {repository.name} has a check `{check_run.name}` (conclusion: {check_run.conclusion}) that is not successful"
+                                    )
+                                    ok = False
+                    if not ok:
+                        continue
+                    try:
+                        click.secho(f"Attempting to merge {repository.name}")
+                        pr.merge(merge_method="squash")
+                        click.secho(f"Merged {repository.name}")
+                    except ValueError as e:
+                        click.secho(f"{e}")
+                else:
+                    click.secho(f"Pull request {repository.name} is not mergeable")
+            else:
+                click.secho(f"Pull request {repository.name} is not open")
+
+
 if __name__ == "__main__":
     main()
