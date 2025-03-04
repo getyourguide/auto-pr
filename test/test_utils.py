@@ -71,6 +71,12 @@ def simple_test_config() -> config.Config:
     cmd = ["bash", "-c", "echo 'test' > testfile.txt"]
     return config.Config(credentials=credentials, pr=pr, update_command=cmd)
 
+def env_var_token_test_config() -> config.Config:
+    credentials = config.Credentials(ssh_key_file="test")
+    pr = config.PrTemplate()
+    cmd = ["bash", "-c", "echo 'test' > testfile.txt"]
+    return config.Config(credentials=credentials, pr=pr, update_command=cmd)
+
 
 def simple_test_database() -> database.Database:
     repo = database.Repository(
