@@ -5,6 +5,7 @@ from test.test_utils import (
     run_cli,
     simple_test_config,
     simple_test_database,
+    env_var_token_test_config,
 )
 from typing import Dict, List, Optional
 from unittest.mock import Mock, patch
@@ -48,7 +49,6 @@ def test_create_files(_create_github_client: Mock, tmp_path):
 @patch("autopr.repo.run_cmd", new=_test_cmd)
 @patch("autopr.github.create_github_client")
 def test_api_key_env_var(_create_github_client: Mock, monkeypatch, tmp_path):
-    monkeypatch.setenv("APR_API_KEY", "env_var_test")
     wd = workdir.WorkDir(Path(tmp_path))
     db = simple_test_database()
     init_git_repos(wd, db)
@@ -56,6 +56,7 @@ def test_api_key_env_var(_create_github_client: Mock, monkeypatch, tmp_path):
         wd,
         ["run"],
         cfg=env_var_token_test_config(),
+        env={"APR_API_KEY": "env_var_test"},
         db=db,
     )
     assert (
