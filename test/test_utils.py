@@ -12,7 +12,7 @@ def run_cli(
     cmd: List[str],
     cfg: Optional[config.Config] = None,
     db: Optional[database.Database] = None,
-    env: Optional[dict]=None,
+    env: Optional[dict] = None,
     should_fail: bool = False,
 ) -> Result:
     if cfg:
