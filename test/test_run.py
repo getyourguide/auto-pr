@@ -1,7 +1,6 @@
 import subprocess
 from pathlib import Path
 from test.test_utils import (
-    env_var_token_test_config,
     init_git_repos,
     run_cli,
     simple_test_config,
