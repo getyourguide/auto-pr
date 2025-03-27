@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from os import environ
 from typing import List, Optional
 
 import marshmallow_dataclass
@@ -18,8 +17,8 @@ FILTER_VISIBILITY_PRIVATE = "private"
 
 @dataclass
 class Credentials:
+    api_key: str
     ssh_key_file: str
-    api_key: str = field(default_factory=(lambda: environ.get("APR_API_KEY", "")))
 
 
 CREDENTIALS_SCHEMA = marshmallow_dataclass.class_schema(Credentials)()
