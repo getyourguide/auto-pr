@@ -1,8 +1,5 @@
 # Changelog
 
-## 1.0.8
-- Support providing GitHub Token via `APR_API_KEY` env var instead of `config.yaml`
-
 ## 1.0.7
 - Add `--exclude-missing` when running `auto-pr status`
   - Allows you to remove the `Missing PRs` section from the output
