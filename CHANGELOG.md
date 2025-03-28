@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.9
+
+- Add `--api-key` flag to `auto-pr run` command
+  - Allows you to pass the API key as a flag (or as the env APR_API_KEY variable) instead of storing
+  it in the configuration file
+
 ## 1.0.7
 - Add `--exclude-missing` when running `auto-pr status`
   - Allows you to remove the `Missing PRs` section from the output

@@ -1,6 +1,7 @@
 import subprocess
 from pathlib import Path
 from test.test_utils import (
+    env_var_token_test_config,
     init_git_repos,
     run_cli,
     simple_test_config,
@@ -43,3 +44,21 @@ def test_create_files(_create_github_client: Mock, tmp_path):
         db=db,
     )
     print(result.output)
+
+
+@patch("autopr.repo.run_cmd", new=_test_cmd)
+@patch("autopr.github.create_github_client")
+def test_api_key_env_var(_create_github_client: Mock, monkeypatch, tmp_path):
+    wd = workdir.WorkDir(Path(tmp_path))
+    db = simple_test_database()
+    init_git_repos(wd, db)
+    result = run_cli(
+        wd,
+        ["run"],
+        cfg=env_var_token_test_config(),
+        env={"APR_API_KEY": "env_var_test"},
+        db=db,
+    )
+    assert (
+        _create_github_client.call_args_list[0][0][0] == "env_var_test"
+    ), f"wrong api_key used for create_github_client: {_create_github_client.call_args_list}"
