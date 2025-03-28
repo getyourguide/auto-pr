@@ -12,6 +12,7 @@ def run_cli(
     cmd: List[str],
     cfg: Optional[config.Config] = None,
     db: Optional[database.Database] = None,
+    env: Optional[dict] = None,
     should_fail: bool = False,
 ) -> Result:
     if cfg:
@@ -20,10 +21,11 @@ def run_cli(
         workdir.write_database(wd, db)
 
     runner = CliRunner()
+    env = env or {}
     result = runner.invoke(
         cli,
         cmd,
-        env={"APR_WORKDIR": f"{wd.location}", "APR_DEBUG": "1"},
+        env={"APR_WORKDIR": f"{wd.location}", "APR_DEBUG": "1", **env},
         catch_exceptions=True,
     )
     if result.exception is not None:
@@ -96,3 +98,10 @@ def get_repository(
         removed=removed,
         done=done,
     )
+
+
+def env_var_token_test_config() -> config.Config:
+    credentials = config.Credentials(api_key="", ssh_key_file="test")
+    pr = config.PrTemplate()
+    cmd = ["bash", "-c", "echo 'test' > testfile.txt"]
+    return config.Config(credentials=credentials, pr=pr, update_command=cmd)

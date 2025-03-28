@@ -1,7 +1,11 @@
 # Changelog
 
-## 1.0.8
+## 1.0.9
+
 - Add `merge` command
+- Add `--api-key` flag to `auto-pr run` command
+  - Allows you to pass the API key as a flag (or as the env APR_API_KEY variable) instead of storing
+  it in the configuration file
 
 ## 1.0.7
 - Add `--exclude-missing` when running `auto-pr status`

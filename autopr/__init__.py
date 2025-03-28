@@ -197,9 +197,18 @@ def test(pull_repos: bool):
     default=DEFAULT_PUSH_DELAY,
     help="Delay in seconds between pushing changes to repositories",
 )
-def run(pull_repos: bool, push_delay: Optional[float]):
+@click.option(
+    "--api-key",
+    envvar="APR_API_KEY",
+    required=False,
+    hide_input=True,
+    help="The GitHub API key to use if not statically configured",
+)
+def run(pull_repos: bool, push_delay: Optional[float], api_key: Optional[str]):
     """Run update logic and create pull requests if changes made"""
     cfg = workdir.read_config(WORKDIR)
+    if api_key is not None:
+        cfg.credentials.api_key = api_key
     db = workdir.read_database(WORKDIR)
     _ensure_set_up(cfg, db)
     gh = github.create_github_client(cfg.credentials.api_key)
