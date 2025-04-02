@@ -8,6 +8,9 @@
     "remark-lint-no-duplicate-headings": "^4.0.0",
     "remark-preset-lint-recommended": "^7.0.0"
   },
+  "resolutions": {
+    "cross-spawn": "^7.0.5"
+  },
   "scripts": {
     "lint-md": "remark ."
   }
