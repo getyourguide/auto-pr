@@ -29,7 +29,7 @@ single-source = "0.4.0"
 [tool.poetry.dev-dependencies]
 pytest = "*"
 pytest-socket = "*"
-setuptools = "78.1.1"
+setuptools = "80.8.0"
 wheel = "*"
 pre-commit = "*"
 coverage = "*"
