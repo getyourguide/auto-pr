@@ -18,7 +18,7 @@ packages = [
 auto-pr = "autopr:main"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.8"
 marshmallow = "3.21.3"
 marshmallow-dataclass = "8.6.1"
 click = "8.1.7"
