@@ -6,6 +6,7 @@
 
 ## 1.0.9
 
+- Add `merge` command
 - Add `--api-key` flag to `auto-pr run` command
   - Allows you to pass the API key as a flag (or as the env APR_API_KEY variable) instead of storing
   it in the configuration file
