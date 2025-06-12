@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.11
+
+- Fix Github API call error
+
 ## 1.0.10
 
 - Fix Github API auth issue by upgrading `PyGithub` lib
