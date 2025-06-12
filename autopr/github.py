@@ -66,10 +66,10 @@ def create_pr(
 ) -> PullRequest:
     gh_repo = gh.get_repo(repository.full_name)
     pull_request = gh_repo.create_pull(
-        pr_template.title,
-        pr_template.body,
-        repository.default_branch,
-        pr_template.branch,
+        base=repository.default_branch,
+        head=pr_template.branch,
+        title=pr_template.title,
+        body=pr_template.body,
         maintainer_can_modify=True,
     )
     return pull_request
