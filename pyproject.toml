@@ -30,7 +30,7 @@ cryptography = ">=45.0.0"
 [tool.poetry.dev-dependencies]
 pytest = "*"
 pytest-socket = "*"
-setuptools = "78.1.1"
+setuptools = "80.9.0"
 wheel = "*"
 pre-commit = "*"
 coverage = "*"
