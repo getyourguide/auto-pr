@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0
+
+- Add `draft` PR property to allows you to create draft PRs instead of regular PRs
+
 ## 1.0.11
 
 - Fix Github API call error

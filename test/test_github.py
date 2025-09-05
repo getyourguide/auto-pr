@@ -1,8 +1,8 @@
 from unittest.mock import Mock, patch
 
-from autopr.config import FILTER_MODE_ADD, FILTER_MODE_REMOVE, Filter
+from autopr.config import FILTER_MODE_ADD, FILTER_MODE_REMOVE, Filter, PrTemplate
 from autopr.database import Repository
-from autopr.github import FilterInfo, gather_repository_list
+from autopr.github import FilterInfo, create_pr, gather_repository_list
 
 
 @patch("autopr.github._list_all_repositories")
@@ -237,6 +237,126 @@ def test_gather_repository_list_filter_owner_remove(mock_list_all_repositories: 
 
     assert len(result) == 1
     assert result[0].name == "boris-repo"
+
+
+def test_create_pr_with_draft_false():
+    """Test create_pr function with draft=False"""
+    # Setup mocks
+    mock_gh = Mock()
+    mock_gh_repo = Mock()
+    mock_pull_request = Mock()
+
+    mock_gh.get_repo.return_value = mock_gh_repo
+    mock_gh_repo.create_pull.return_value = mock_pull_request
+
+    # Test data
+    repository = Repository(
+        owner="test-owner",
+        name="test-repo",
+        ssh_url="git@github.com:test-owner/test-repo.git",
+        default_branch="main",
+    )
+
+    pr_template = PrTemplate(
+        title="Test PR",
+        message="Test message",
+        branch="test-branch",
+        body="Test body",
+        draft=False,
+    )
+
+    # Execute
+    result = create_pr(mock_gh, repository, pr_template)
+
+    # Verify
+    mock_gh.get_repo.assert_called_once_with("test-owner/test-repo")
+    mock_gh_repo.create_pull.assert_called_once_with(
+        base="main",
+        head="test-branch",
+        title="Test PR",
+        body="Test body",
+        maintainer_can_modify=True,
+        draft=False,
+    )
+    assert result == mock_pull_request
+
+
+def test_create_pr_with_draft_true():
+    """Test create_pr function with draft=True"""
+    # Setup mocks
+    mock_gh = Mock()
+    mock_gh_repo = Mock()
+    mock_pull_request = Mock()
+
+    mock_gh.get_repo.return_value = mock_gh_repo
+    mock_gh_repo.create_pull.return_value = mock_pull_request
+
+    # Test data
+    repository = Repository(
+        owner="test-owner",
+        name="test-repo",
+        ssh_url="git@github.com:test-owner/test-repo.git",
+        default_branch="master",
+    )
+
+    pr_template = PrTemplate(
+        title="Draft PR",
+        message="Draft message",
+        branch="draft-branch",
+        body="Draft body",
+        draft=True,
+    )
+
+    # Execute
+    result = create_pr(mock_gh, repository, pr_template)
+
+    # Verify
+    mock_gh.get_repo.assert_called_once_with("test-owner/test-repo")
+    mock_gh_repo.create_pull.assert_called_once_with(
+        base="master",
+        head="draft-branch",
+        title="Draft PR",
+        body="Draft body",
+        maintainer_can_modify=True,
+        draft=True,
+    )
+    assert result == mock_pull_request
+
+
+def test_create_pr_with_default_template():
+    """Test create_pr function with default PrTemplate (draft=False by default)"""
+    # Setup mocks
+    mock_gh = Mock()
+    mock_gh_repo = Mock()
+    mock_pull_request = Mock()
+
+    mock_gh.get_repo.return_value = mock_gh_repo
+    mock_gh_repo.create_pull.return_value = mock_pull_request
+
+    # Test data
+    repository = Repository(
+        owner="test-owner",
+        name="test-repo",
+        ssh_url="git@github.com:test-owner/test-repo.git",
+        default_branch="develop",
+    )
+
+    pr_template = PrTemplate()  # Using defaults
+
+    # Execute
+    result = create_pr(mock_gh, repository, pr_template)
+
+    # Verify
+    mock_gh.get_repo.assert_called_once_with("test-owner/test-repo")
+    mock_gh_repo.create_pull.assert_called_once_with(
+        base="develop",
+        head="autopr",  # default branch
+        title="Automatically generated PR",  # default title
+        body="This is an automatically generated PR",  # default body
+        maintainer_can_modify=True,
+        draft=False,  # default draft value
+    )
+    assert result == mock_pull_request
 
 
 def _get_fake_repository_tuple(

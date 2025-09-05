@@ -51,6 +51,7 @@ pr:
   branch: auto-pr # The branch name to use when making changes
   message: Replace default pipelines with modules # Commit message
   title: 'My awesome change' # Title of the PR
+  draft: True # Whether to create the PR as a draft
 repositories: # Rules that define what repos to update
   - mode: add
     match_owner: <org/user>

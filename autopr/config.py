@@ -30,6 +30,7 @@ class PrTemplate:
     message: str = DEFAULT_PR_MESSAGE
     branch: str = DEFAULT_PR_BRANCH
     body: str = DEFAULT_PR_BODY
+    draft: bool = False
 
 
 PR_TEMPLATE_SCHEMA = marshmallow_dataclass.class_schema(PrTemplate)()
