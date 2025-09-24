@@ -71,6 +71,7 @@ def create_pr(
         title=pr_template.title,
         body=pr_template.body,
         maintainer_can_modify=True,
+        draft=pr_template.draft,
     )
     return pull_request
 
