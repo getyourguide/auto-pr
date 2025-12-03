@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0
+
+- Add environment variable expansion support in `config.yaml` for credentials
+  - Use `${VAR_NAME}` syntax to reference system environment variables
+  - Supports expansion in `api_key` and `ssh_key_file` fields
+  - Enables keeping sensitive credentials out of configuration files
+  - Clear error messages when referenced environment variables are not set
+
 ## 1.1.0
 
 - Add `draft` PR property to allows you to create draft PRs instead of regular PRs

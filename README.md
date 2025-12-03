@@ -60,7 +60,33 @@ update_command:
   - my-file
 ```
 
-If you wish to keep your API Key outside of `config.yaml`, set the env var `APR_API_KEY` with your GitHub Token
+#### Using Environment Variables for Credentials
+
+To avoid storing credentials in plain text within `config.yaml`, you can use environment variable expansion with the `${VAR_NAME}` syntax:
+
+```yaml
+credentials:
+  api_key: ${GITHUB_API_KEY}
+  ssh_key_file: ${HOME}/.ssh/id_rsa
+```
+
+Then set the environment variables before running auto-pr:
+
+```bash
+export GITHUB_API_KEY=ghp_your_token_here
+export HOME=/home/username
+auto-pr pull
+```
+
+Environment variables can be used in multiple ways:
+
+- **Full replacement**: `api_key: ${GITHUB_API_KEY}`
+- **Embedded in paths**: `ssh_key_file: ${HOME}/.ssh/id_rsa`
+- **Multiple variables**: `ssh_key_file: ${USER_HOME}/${KEY_DIR}/id_rsa`
+
+If a referenced environment variable is not set, auto-pr will display a clear error message indicating which variable is missing.
+
+Alternatively, if you wish to keep your API Key outside of `config.yaml` without modifying the config file, you can set the env var `APR_API_KEY` with your GitHub Token
 
 ### Repositories
 
