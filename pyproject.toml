@@ -23,7 +23,7 @@ marshmallow = "4.0.1"
 marshmallow-dataclass = "8.7.1"
 click = "8.1.8"
 PyYAML = "6.0.3"
-PyGithub = "2.6.1"
+PyGithub = "2.8.1"
 single-source = "0.4.0"
 cryptography = ">=45.0.0"
 
