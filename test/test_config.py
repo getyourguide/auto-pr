@@ -1,6 +1,13 @@
+import os
 import unittest
 
-from autopr.config import PR_TEMPLATE_SCHEMA, PrTemplate
+from autopr.config import (
+    CREDENTIALS_SCHEMA,
+    PR_TEMPLATE_SCHEMA,
+    Credentials,
+    PrTemplate,
+    expand_env_vars,
+)
 
 
 class TestPrTemplate(unittest.TestCase):
@@ -142,6 +149,134 @@ class TestPrTemplate(unittest.TestCase):
         self.assertEqual(original.body, restored.body)
         self.assertEqual(original.draft, restored.draft)
         self.assertTrue(restored.draft)
+
+
+class TestExpandEnvVars(unittest.TestCase):
+    def test_expand_single_env_var(self):
+        """Test expansion of a single environment variable"""
+        os.environ["TEST_VAR"] = "test_value"
+        result = expand_env_vars("${TEST_VAR}")
+        self.assertEqual(result, "test_value")
+        del os.environ["TEST_VAR"]
+
+    def test_expand_env_var_in_string(self):
+        """Test expansion of environment variable within a string"""
+        os.environ["TEST_VAR"] = "test_value"
+        result = expand_env_vars("prefix_${TEST_VAR}_suffix")
+        self.assertEqual(result, "prefix_test_value_suffix")
+        del os.environ["TEST_VAR"]
+
+    def test_expand_multiple_env_vars(self):
+        """Test expansion of multiple environment variables"""
+        os.environ["VAR1"] = "value1"
+        os.environ["VAR2"] = "value2"
+        result = expand_env_vars("${VAR1}/${VAR2}")
+        self.assertEqual(result, "value1/value2")
+        del os.environ["VAR1"]
+        del os.environ["VAR2"]
+
+    def test_expand_missing_env_var_raises_error(self):
+        """Test that missing environment variable raises ValueError"""
+        with self.assertRaises(ValueError) as context:
+            expand_env_vars("${NONEXISTENT_VAR}")
+        self.assertIn("NONEXISTENT_VAR", str(context.exception))
+        self.assertIn("not set", str(context.exception))
+
+    def test_expand_no_env_var(self):
+        """Test that strings without env vars are returned unchanged"""
+        result = expand_env_vars("plain_string")
+        self.assertEqual(result, "plain_string")
+
+    def test_expand_empty_string(self):
+        """Test expansion of empty string"""
+        result = expand_env_vars("")
+        self.assertEqual(result, "")
+
+
+class TestCredentialsSchema(unittest.TestCase):
+    def test_credentials_with_env_vars(self):
+        """Test that credentials correctly expand environment variables"""
+        os.environ["GITHUB_API_KEY"] = "test_api_key_123"
+        os.environ["SSH_KEY_PATH"] = "/home/user/.ssh/id_rsa"
+
+        data = {
+            "api_key": "${GITHUB_API_KEY}",
+            "ssh_key_file": "${SSH_KEY_PATH}",
+        }
+
+        credentials = CREDENTIALS_SCHEMA.load(data)
+
+        self.assertEqual(credentials.api_key, "test_api_key_123")
+        self.assertEqual(credentials.ssh_key_file, "/home/user/.ssh/id_rsa")
+
+        del os.environ["GITHUB_API_KEY"]
+        del os.environ["SSH_KEY_PATH"]
+
+    def test_credentials_with_partial_env_vars(self):
+        """Test credentials with env vars embedded in strings"""
+        os.environ["HOME"] = "/home/testuser"
+        os.environ["API_KEY"] = "secret123"
+
+        data = {
+            "api_key": "prefix_${API_KEY}_suffix",
+            "ssh_key_file": "${HOME}/.ssh/id_rsa",
+        }
+
+        credentials = CREDENTIALS_SCHEMA.load(data)
+
+        self.assertEqual(credentials.api_key, "prefix_secret123_suffix")
+        self.assertEqual(credentials.ssh_key_file, "/home/testuser/.ssh/id_rsa")
+
+        del os.environ["HOME"]
+        del os.environ["API_KEY"]
+
+    def test_credentials_without_env_vars(self):
+        """Test that plain strings work without env var syntax"""
+        data = {
+            "api_key": "plain_api_key",
+            "ssh_key_file": "/plain/path/to/key",
+        }
+
+        credentials = CREDENTIALS_SCHEMA.load(data)
+
+        self.assertEqual(credentials.api_key, "plain_api_key")
+        self.assertEqual(credentials.ssh_key_file, "/plain/path/to/key")
+
+    def test_credentials_with_missing_env_var_raises_error(self):
+        """Test that missing environment variable raises error during deserialization"""
+        data = {
+            "api_key": "${MISSING_API_KEY}",
+            "ssh_key_file": "/path/to/key",
+        }
+
+        with self.assertRaises(ValueError) as context:
+            CREDENTIALS_SCHEMA.load(data)
+        self.assertIn("MISSING_API_KEY", str(context.exception))
+        self.assertIn("not set", str(context.exception))
+
+    def test_credentials_roundtrip_with_env_vars(self):
+        """Test that credentials can be serialized and deserialized"""
+        os.environ["TEST_API_KEY"] = "api_key_value"
+        os.environ["TEST_SSH_KEY"] = "/test/ssh/key"
+
+        # Create credentials from env vars
+        data = {
+            "api_key": "${TEST_API_KEY}",
+            "ssh_key_file": "${TEST_SSH_KEY}",
+        }
+        credentials = CREDENTIALS_SCHEMA.load(data)
+
+        # Values should be expanded
+        self.assertEqual(credentials.api_key, "api_key_value")
+        self.assertEqual(credentials.ssh_key_file, "/test/ssh/key")
+
+        # Serialize back (note: serialization will contain the expanded values, not the env var syntax)
+        serialized = CREDENTIALS_SCHEMA.dump(credentials)
+        self.assertEqual(serialized["api_key"], "api_key_value")
+        self.assertEqual(serialized["ssh_key_file"], "/test/ssh/key")
+
+        del os.environ["TEST_API_KEY"]
+        del os.environ["TEST_SSH_KEY"]
 
 
 if __name__ == "__main__":

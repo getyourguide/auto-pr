@@ -1,7 +1,10 @@
+import os
+import re
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import marshmallow_dataclass
+from marshmallow import Schema, fields, post_load
 
 DEFAULT_PR_TITLE = "Automatically generated PR"
 DEFAULT_PR_MESSAGE = "Automatically generated commit"
@@ -15,13 +18,55 @@ FILTER_VISIBILITY_PUBLIC = "public"
 FILTER_VISIBILITY_PRIVATE = "private"
 
 
+def expand_env_vars(value: str) -> str:
+    """
+    Expand environment variables in a string.
+    Supports ${VAR_NAME} syntax.
+
+    Args:
+        value: String that may contain ${VAR_NAME} patterns
+
+    Returns:
+        String with environment variables expanded
+
+    Raises:
+        ValueError: If referenced environment variable is not set
+    """
+
+    def replacer(match):
+        var_name = match.group(1)
+        env_value = os.getenv(var_name)
+        if env_value is None:
+            raise ValueError(f"Environment variable '{var_name}' is not set")
+        return env_value
+
+    # Match ${VAR_NAME} pattern
+    return re.sub(r"\$\{([^}]+)\}", replacer, value)
+
+
 @dataclass
 class Credentials:
     api_key: str
     ssh_key_file: str
 
 
-CREDENTIALS_SCHEMA = marshmallow_dataclass.class_schema(Credentials)()
+class CredentialsSchema(Schema):
+    api_key = fields.Str(required=True)
+    ssh_key_file = fields.Str(required=True)
+
+    @post_load
+    def expand_credentials_env_vars(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> Credentials:
+        """Expand environment variables in credential fields after loading."""
+        if "api_key" in data and isinstance(data["api_key"], str):
+            data["api_key"] = expand_env_vars(data["api_key"])
+        if "ssh_key_file" in data and isinstance(data["ssh_key_file"], str):
+            data["ssh_key_file"] = expand_env_vars(data["ssh_key_file"])
+        return Credentials(**data)
+
+
+CREDENTIALS_SCHEMA = CredentialsSchema()
 
 
 @dataclass
