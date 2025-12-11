@@ -123,6 +123,51 @@ This command can be run multiple times, if there are new matching repositories f
 
 If you would like to use your globally set config, you can pass the option `--use-global-git-config` when pulling the repos. If you had already pulled the repos before this and you would like to change the config for those repos, you would also need to pass `--update-repos` alongside the global-git-config option when pulling.
 
+### Search
+
+The `search` command allows you to discover repositories using GitHub's code search API and automatically add them as filter rules to your `config.yaml`.
+
+```bash
+auto-pr search --query "filename:Dockerfile" --org mycompany
+```
+
+This command is useful when you want to:
+- Find all repositories in an organization that contain a specific file
+- Discover repositories with certain code patterns
+- Dynamically build your repository list based on search criteria
+
+#### Search Options
+
+- `--query, -q` (required): GitHub code search query using the full GitHub search syntax
+- `--org`: Restrict search to specific organization(s) - can be specified multiple times
+- `--user`: Restrict search to specific user(s) - can be specified multiple times
+- `--public/--no-public`: Filter by repository visibility
+- `--archived/--no-archived`: Filter by archived status (default: exclude archived)
+- `--max-repos`: Maximum number of repositories to find (default: 100)
+- `--dry-run/--no-dry-run`: Preview changes without modifying config (default: dry-run)
+- `--filter-name`: Optional descriptive name for the filter
+
+#### Examples
+
+Find all repositories with a Dockerfile:
+```bash
+auto-pr search --query "filename:Dockerfile" --org mycompany --no-dry-run
+```
+
+Find Python projects using Flask:
+```bash
+auto-pr search --query "flask in:file requirements.txt" --org myorg --public
+```
+
+Find repositories with specific code patterns:
+```bash
+auto-pr search --query "import pandas language:python" --org myorg
+```
+
+**Note**: By default, the `search` command runs in dry-run mode to preview the filters that would be added. Use `--no-dry-run` to actually modify your `config.yaml`.
+
+After adding filters with search, run `auto-pr pull` to fetch the discovered repositories.
+
 ### Test
 
 Once the `pull` command has finished setting up the work directory you can now run test to check what the changes that will be made by the script will yield.

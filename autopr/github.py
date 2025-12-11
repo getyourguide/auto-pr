@@ -1,9 +1,11 @@
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from github import Github
+from github.GithubException import GithubException, RateLimitExceededException
 from github.PullRequest import PullRequest
 
 from autopr import config, database
@@ -181,3 +183,157 @@ def _filter_matches(filter: config.Filter, filter_info: FilterInfo):
             return False
 
     return True
+
+
+def search_code_for_repositories(
+    gh: Github,
+    query: str,
+    max_repos: int = 100,
+    public_filter: Optional[bool] = None,
+    archived_filter: Optional[bool] = None,
+) -> List[database.Repository]:
+    """
+    Execute GitHub code search and extract unique repositories.
+
+    Args:
+        gh: GitHub client
+        query: GitHub code search query string
+        max_repos: Maximum number of unique repositories to return
+        public_filter: Filter by public/private (None = no filter)
+        archived_filter: Filter by archived status (None = no filter)
+
+    Returns:
+        List of unique Repository objects found in search results
+
+    Raises:
+        CliException: If search fails or rate limit exceeded
+    """
+    try:
+        # Execute code search
+        code_results = gh.search_code(query)
+
+        # Extract unique repositories
+        seen_repos = set()
+        repositories = []
+
+        for code_file in code_results:
+            repo = code_file.repository
+            repo_key = (repo.owner.login, repo.name)
+
+            # Skip if we've already seen this repo
+            if repo_key in seen_repos:
+                continue
+
+            # Apply visibility filter
+            if public_filter is not None:
+                is_public = not repo.private
+                if is_public != public_filter:
+                    continue
+
+            # Apply archived filter
+            if archived_filter is not None:
+                if repo.archived != archived_filter:
+                    continue
+
+            # Add to results
+            seen_repos.add(repo_key)
+            repository = database.Repository(
+                owner=repo.owner.login,
+                name=repo.name,
+                ssh_url=repo.ssh_url,
+                default_branch=repo.default_branch,
+            )
+            repositories.append(repository)
+
+            # Check max repos limit
+            if len(repositories) >= max_repos:
+                break
+
+        return repositories
+
+    except RateLimitExceededException as e:
+        rate_limit = gh.get_rate_limit()
+        reset_time = rate_limit.search.reset
+        raise CliException(
+            f"GitHub API rate limit exceeded. "
+            f"Resets at {reset_time}. "
+            f"Try using a more specific query or wait until rate limit resets."
+        ) from e
+    except GithubException as e:
+        if e.status == 422:
+            raise CliException(
+                f"Invalid search query syntax: {e.data.get('message', str(e))}"
+            ) from e
+        raise CliException(f"GitHub API error: {e}") from e
+
+
+def group_repositories_by_owner(
+    repositories: List[database.Repository],
+) -> Dict[str, List[database.Repository]]:
+    """
+    Group repositories by owner for filter generation.
+
+    Args:
+        repositories: List of repositories to group
+
+    Returns:
+        Dict mapping owner name to list of repositories
+    """
+    grouped: Dict[str, List[database.Repository]] = {}
+
+    for repo in repositories:
+        if repo.owner not in grouped:
+            grouped[repo.owner] = []
+        grouped[repo.owner].append(repo)
+
+    return grouped
+
+
+def generate_filters_from_repositories(
+    repositories: List[database.Repository],
+    public_filter: Optional[bool],
+    archived_filter: Optional[bool],
+    filter_description: Optional[str] = None,
+) -> Tuple[List[config.Filter], str]:
+    """
+    Generate filter rules from list of repositories.
+
+    Args:
+        repositories: List of repositories to convert to filters
+        public_filter: Public/private filter value
+        archived_filter: Archived filter value
+        filter_description: Optional description for YAML comment
+
+    Returns:
+        Tuple of (list of Filter objects, comment string for YAML)
+    """
+    if not repositories:
+        return ([], "")
+
+    # Group repos by owner
+    grouped = group_repositories_by_owner(repositories)
+
+    # Generate filters (one per owner)
+    filters = []
+    for owner, owner_repos in grouped.items():
+        # Escape special regex characters in repo names for literal matching
+        repo_names = [re.escape(repo.name) for repo in owner_repos]
+
+        filter_obj = config.Filter(
+            mode=config.FILTER_MODE_ADD,
+            match_owner=re.escape(owner),  # Exact match on owner
+            match_name=repo_names,
+            public=public_filter,
+            archived=archived_filter,
+        )
+        filters.append(filter_obj)
+
+    # Generate comment
+    today = datetime.now().strftime("%Y-%m-%d")
+    if filter_description:
+        comment = f"Added by auto-pr search: {filter_description} ({today})"
+    else:
+        comment = f"Added by auto-pr search ({today})"
+    comment += f"\nFound {len(repositories)} repositories"
+
+    return (filters, comment)

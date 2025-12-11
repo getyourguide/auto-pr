@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import List, Optional
 
 import yaml
 from marshmallow import ValidationError
@@ -76,6 +77,30 @@ def read_config(wd: WorkDir) -> config.Config:
         return config.CONFIG_SCHEMA.load(config_dict)
     except ValidationError as err:
         raise CliException(f"Failed to deserialize config: {err.messages}")
+
+
+def append_filter_to_config(
+    wd: WorkDir, new_filters: List[config.Filter], comment: Optional[str] = None
+) -> None:
+    """
+    Append new filter rules to config.yaml.
+
+    Args:
+        wd: WorkDir instance
+        new_filters: List of Filter objects to append
+        comment: Optional comment to add before the filters (not preserved in YAML)
+
+    Raises:
+        CliException: If config read/write fails
+    """
+    # Read existing config
+    cfg = read_config(wd)
+
+    # Append new filters
+    cfg.repositories.extend(new_filters)
+
+    # Write back to config
+    write_config(wd, cfg)
 
 
 def write_database(wd: WorkDir, db: database.Database):

@@ -2,7 +2,13 @@ from unittest.mock import Mock, patch
 
 from autopr.config import FILTER_MODE_ADD, FILTER_MODE_REMOVE, Filter, PrTemplate
 from autopr.database import Repository
-from autopr.github import FilterInfo, create_pr, gather_repository_list
+from autopr.github import (
+    FilterInfo,
+    create_pr,
+    gather_repository_list,
+    generate_filters_from_repositories,
+    group_repositories_by_owner,
+)
 
 
 @patch("autopr.github._list_all_repositories")
@@ -373,3 +379,129 @@ def _get_fake_repository_tuple(
     )
 
     return filter_info, repository
+
+
+def test_group_repositories_by_owner():
+    """Test grouping repositories by owner"""
+    repos = [
+        Repository(
+            owner="org1", name="repo1", ssh_url="git@github.com", default_branch="main"
+        ),
+        Repository(
+            owner="org1", name="repo2", ssh_url="git@github.com", default_branch="main"
+        ),
+        Repository(
+            owner="org2", name="repo3", ssh_url="git@github.com", default_branch="main"
+        ),
+    ]
+
+    grouped = group_repositories_by_owner(repos)
+
+    assert len(grouped) == 2
+    assert len(grouped["org1"]) == 2
+    assert len(grouped["org2"]) == 1
+    assert grouped["org1"][0].name == "repo1"
+    assert grouped["org1"][1].name == "repo2"
+    assert grouped["org2"][0].name == "repo3"
+
+
+def test_group_repositories_by_owner_empty():
+    """Test grouping empty list of repositories"""
+    grouped = group_repositories_by_owner([])
+    assert grouped == {}
+
+
+def test_generate_filters_from_repositories_single_owner():
+    """Test generating filters from repositories with a single owner"""
+    repos = [
+        Repository(
+            owner="myorg",
+            name="repo1",
+            ssh_url="git@github.com",
+            default_branch="main",
+        ),
+        Repository(
+            owner="myorg",
+            name="repo2",
+            ssh_url="git@github.com",
+            default_branch="main",
+        ),
+    ]
+
+    filters, comment = generate_filters_from_repositories(
+        repos, public_filter=True, archived_filter=False, filter_description="Test"
+    )
+
+    assert len(filters) == 1
+    assert filters[0].mode == FILTER_MODE_ADD
+    assert filters[0].match_owner == "myorg"  # Escaped, but no special chars
+    assert len(filters[0].match_name) == 2
+    assert "repo1" in filters[0].match_name
+    assert "repo2" in filters[0].match_name
+    assert filters[0].public is True
+    assert filters[0].archived is False
+    assert "Test" in comment
+    assert "2 repositories" in comment
+
+
+def test_generate_filters_from_repositories_multiple_owners():
+    """Test generating filters from repositories with multiple owners"""
+    repos = [
+        Repository(
+            owner="org1", name="repo1", ssh_url="git@github.com", default_branch="main"
+        ),
+        Repository(
+            owner="org2", name="repo2", ssh_url="git@github.com", default_branch="main"
+        ),
+    ]
+
+    filters, comment = generate_filters_from_repositories(
+        repos, public_filter=None, archived_filter=None
+    )
+
+    assert len(filters) == 2
+    # Find filters by owner
+    org1_filter = next(f for f in filters if f.match_owner == "org1")
+    org2_filter = next(f for f in filters if f.match_owner == "org2")
+
+    assert org1_filter.mode == FILTER_MODE_ADD
+    assert "repo1" in org1_filter.match_name
+    assert org2_filter.mode == FILTER_MODE_ADD
+    assert "repo2" in org2_filter.match_name
+
+
+def test_generate_filters_from_repositories_empty():
+    """Test generating filters from empty repository list"""
+    filters, comment = generate_filters_from_repositories(
+        [], public_filter=None, archived_filter=None
+    )
+
+    assert filters == []
+    assert comment == ""
+
+
+def test_generate_filters_escapes_special_chars():
+    """Test that special regex characters in repo names are escaped"""
+    repos = [
+        Repository(
+            owner="myorg",
+            name="test.com",
+            ssh_url="git@github.com",
+            default_branch="main",
+        ),
+        Repository(
+            owner="myorg",
+            name="test[1]",
+            ssh_url="git@github.com",
+            default_branch="main",
+        ),
+    ]
+
+    filters, _ = generate_filters_from_repositories(
+        repos, public_filter=None, archived_filter=None
+    )
+
+    assert len(filters) == 1
+    # Special chars should be escaped
+    assert "test\\.com" in filters[0].match_name
+    assert "test\\[1\\]" in filters[0].match_name

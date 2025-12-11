@@ -159,6 +159,149 @@ def pull(
 
 @cli.command()
 @click.option(
+    "--query",
+    "-q",
+    required=True,
+    help="GitHub code search query (supports full GitHub search syntax)",
+)
+@click.option(
+    "--org",
+    multiple=True,
+    help="Restrict search to specific organization(s). Can be specified multiple times.",
+)
+@click.option(
+    "--user",
+    "user_filter",
+    multiple=True,
+    help="Restrict search to specific user(s). Can be specified multiple times.",
+)
+@click.option(
+    "--public/--no-public",
+    default=None,
+    help="Filter by repository visibility",
+)
+@click.option(
+    "--archived/--no-archived",
+    default=False,
+    help="Filter by archived status (default: exclude archived)",
+)
+@click.option(
+    "--max-repos",
+    default=100,
+    type=int,
+    help="Maximum number of repositories to find",
+)
+@click.option(
+    "--dry-run/--no-dry-run",
+    default=True,
+    is_flag=True,
+    help="Preview changes without modifying config (default: dry-run)",
+)
+@click.option(
+    "--filter-name",
+    help="Optional descriptive name for the filter (added as comment metadata)",
+)
+def search(
+    query: str,
+    org: tuple,
+    user_filter: tuple,
+    public: Optional[bool],
+    archived: bool,
+    max_repos: int,
+    dry_run: bool,
+    filter_name: Optional[str],
+):
+    """Search GitHub for repositories and add them as filter rules"""
+    cfg = workdir.read_config(WORKDIR)
+    gh = github.create_github_client(cfg.credentials.api_key)
+
+    # Build complete query by adding org/user qualifiers
+    complete_query = query
+    for org_name in org:
+        complete_query += f" org:{org_name}"
+    for user_name in user_filter:
+        complete_query += f" user:{user_name}"
+
+    # Execute search
+    click.secho(f"Searching GitHub for: {complete_query}")
+    try:
+        repositories = github.search_code_for_repositories(
+            gh, complete_query, max_repos, public, archived
+        )
+    except CliException as e:
+        error(f"{e}")
+        return
+
+    # Handle empty results
+    if not repositories:
+        click.secho(
+            "No repositories found matching the query. Try refining your search.",
+            fg="yellow",
+        )
+        return
+
+    # Group by owner for display
+    grouped = github.group_repositories_by_owner(repositories)
+    owner_count = len(grouped)
+
+    click.secho(
+        f"\nFound {len(repositories)} unique repositories across {owner_count} owner(s):"
+    )
+    for owner, repos in grouped.items():
+        click.secho(f"  {owner} ({len(repos)} repos)")
+
+    # Generate filters
+    filters, comment = github.generate_filters_from_repositories(
+        repositories, public, archived, filter_name
+    )
+
+    # Display preview
+    click.secho("\nGenerated filter preview:")
+    click.secho("━" * 60)
+
+    # Show comment
+    for comment_line in comment.split("\n"):
+        click.secho(f"# {comment_line}")
+
+    # Show filters in YAML-like format
+    for filter_obj in filters:
+        click.secho(f"- mode: {filter_obj.mode}")
+        click.secho(f"  match_owner: {filter_obj.match_owner}")
+        if filter_obj.match_name:
+            click.secho(f"  match_name:")
+            # Show first 5 repos, then indicate if there are more
+            for repo_name in filter_obj.match_name[:5]:
+                click.secho(f"    - {repo_name}")
+            if len(filter_obj.match_name) > 5:
+                click.secho(f"    ... ({len(filter_obj.match_name) - 5} more)")
+        if filter_obj.public is not None:
+            click.secho(f"  public: {filter_obj.public}")
+        if filter_obj.archived is not None:
+            click.secho(f"  archived: {filter_obj.archived}")
+        click.secho("")
+
+    click.secho("━" * 60)
+
+    # Dry-run vs actual execution
+    if dry_run:
+        click.secho("\nThis is a DRY RUN. No changes were made to config.yaml.")
+        click.secho("To apply these changes, run the same command with --no-dry-run")
+    else:
+        # Actually append to config
+        try:
+            workdir.append_filter_to_config(WORKDIR, filters, comment)
+            click.secho(f"\n✓ Added filter rule to config.yaml", fg="green", bold=True)
+            click.secho(f"  - {len(repositories)} repositories matched")
+            click.secho("\nNext steps:")
+            click.secho("  1. Review the changes in config.yaml")
+            click.secho("  2. Run 'auto-pr pull' to fetch these repositories")
+            click.secho("  3. Run 'auto-pr test' to preview changes")
+        except CliException as e:
+            error(f"Failed to update config: {e}")
+
+
+@cli.command()
+@click.option(
     "--pull-repos/--no-pull-repos",
     default=False,
     is_flag=True,
