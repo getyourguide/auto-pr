@@ -155,6 +155,10 @@ getyourguide/test
 getyourguide/auto-pr
 ```
 
+## Development
+
+For information on setting up a development environment and contributing to auto-pr, see [DEVELOPMENT.md](DEVELOPMENT.md).
+
 ## Security
 
 For sensitive security matters please contact [security@getyourguide.com](mailto:security@getyourguide.com).

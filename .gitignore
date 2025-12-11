@@ -110,6 +110,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# uv cache (not needed in version control)
+.uv/
+
 # Spyder project settings
 .spyderproject
 .spyproject
