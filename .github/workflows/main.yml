@@ -25,7 +25,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install uv
-        run: pip install uv
+        uses: astral-sh/setup-uv@v7.1.5
+        with:
+          enable-cache: true
+          cache-suffix: ${{ matrix.python-version }}
       - name: Install dependencies
         run: uv sync --extra dev
       - name: Run tests
@@ -39,7 +42,10 @@ jobs:
         with:
           python-version: 3.9
       - name: Install uv
-        run: pip install uv
+        uses: astral-sh/setup-uv@v7.1.5
+        with:
+          enable-cache: true
+          cache-suffix: "3.9"
       - name: Install dependencies
         run: uv sync --extra dev
       - name: Run pre-commit
