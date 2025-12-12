@@ -279,5 +279,149 @@ class TestCredentialsSchema(unittest.TestCase):
         del os.environ["TEST_SSH_KEY"]
 
 
+class TestConfigSchema(unittest.TestCase):
+    def test_config_with_custom_repos_dir(self):
+        """Test that Config correctly parses custom_repos_dir field"""
+        from autopr.config import CONFIG_SCHEMA
+
+        data = {
+            "credentials": {"api_key": "test_key", "ssh_key_file": "/test/key"},
+            "pr": {
+                "title": "Test PR",
+                "message": "Test message",
+                "branch": "test-branch",
+                "body": "Test body",
+                "draft": False,
+            },
+            "repositories": [],
+            "update_command": ["echo", "test"],
+            "custom_repos_dir": "/custom/repos/path",
+        }
+
+        cfg = CONFIG_SCHEMA.load(data)
+
+        self.assertEqual(cfg.custom_repos_dir, "/custom/repos/path")
+
+    def test_config_without_custom_repos_dir(self):
+        """Test that Config works when custom_repos_dir is not specified"""
+        from autopr.config import CONFIG_SCHEMA
+
+        data = {
+            "credentials": {"api_key": "test_key", "ssh_key_file": "/test/key"},
+            "pr": {
+                "title": "Test PR",
+                "message": "Test message",
+                "branch": "test-branch",
+                "body": "Test body",
+                "draft": False,
+            },
+            "repositories": [],
+            "update_command": ["echo", "test"],
+        }
+
+        cfg = CONFIG_SCHEMA.load(data)
+
+        self.assertIsNone(cfg.custom_repos_dir)
+
+    def test_config_custom_repos_dir_with_env_var(self):
+        """Test that custom_repos_dir correctly expands environment variables"""
+        from autopr.config import CONFIG_SCHEMA
+
+        os.environ["TEST_REPOS_BASE"] = "/home/user/repos"
+
+        data = {
+            "credentials": {"api_key": "test_key", "ssh_key_file": "/test/key"},
+            "pr": {
+                "title": "Test PR",
+                "message": "Test message",
+                "branch": "test-branch",
+                "body": "Test body",
+                "draft": False,
+            },
+            "repositories": [],
+            "update_command": ["echo", "test"],
+            "custom_repos_dir": "${TEST_REPOS_BASE}/projects",
+        }
+
+        cfg = CONFIG_SCHEMA.load(data)
+
+        self.assertEqual(cfg.custom_repos_dir, "/home/user/repos/projects")
+
+        del os.environ["TEST_REPOS_BASE"]
+
+    def test_config_custom_repos_dir_with_missing_env_var(self):
+        """Test that missing env var in custom_repos_dir raises error"""
+        from autopr.config import CONFIG_SCHEMA
+
+        data = {
+            "credentials": {"api_key": "test_key", "ssh_key_file": "/test/key"},
+            "pr": {
+                "title": "Test PR",
+                "message": "Test message",
+                "branch": "test-branch",
+                "body": "Test body",
+                "draft": False,
+            },
+            "repositories": [],
+            "update_command": ["echo", "test"],
+            "custom_repos_dir": "${MISSING_REPOS_VAR}",
+        }
+
+        with self.assertRaises(ValueError) as context:
+            CONFIG_SCHEMA.load(data)
+        self.assertIn("MISSING_REPOS_VAR", str(context.exception))
+        self.assertIn("not set", str(context.exception))
+
+    def test_config_custom_repos_dir_serialization(self):
+        """Test that Config correctly serializes custom_repos_dir"""
+        from autopr.config import CONFIG_SCHEMA, Config, Credentials, PrTemplate
+
+        credentials = Credentials(api_key="test_key", ssh_key_file="/test/key")
+        pr = PrTemplate(
+            title="Test PR",
+            message="Test message",
+            branch="test-branch",
+            body="Test body",
+            draft=False,
+        )
+        cfg = Config(
+            credentials=credentials,
+            pr=pr,
+            repositories=[],
+            update_command=["echo", "test"],
+            custom_repos_dir="/custom/repos",
+        )
+
+        data = CONFIG_SCHEMA.dump(cfg)
+
+        self.assertIn("custom_repos_dir", data)
+        self.assertEqual(data["custom_repos_dir"], "/custom/repos")
+
+    def test_config_roundtrip_with_custom_repos_dir(self):
+        """Test serialize -> deserialize roundtrip with custom_repos_dir"""
+        from autopr.config import CONFIG_SCHEMA, Config, Credentials, PrTemplate
+
+        os.environ["TEST_REPOS_DIR"] = "/home/user/all-repos"
+
+        credentials = Credentials(api_key="test_key", ssh_key_file="/test/key")
+        pr = PrTemplate()
+        cfg = Config(
+            credentials=credentials,
+            pr=pr,
+            custom_repos_dir="${TEST_REPOS_DIR}",
+        )
+
+        # Serialize
+        data = CONFIG_SCHEMA.dump(cfg)
+
+        # Deserialize
+        restored = CONFIG_SCHEMA.load(data)
+
+        # custom_repos_dir should be expanded now
+        self.assertEqual(restored.custom_repos_dir, "/home/user/all-repos")
+
+        del os.environ["TEST_REPOS_DIR"]
+
+
 if __name__ == "__main__":
     unittest.main()
