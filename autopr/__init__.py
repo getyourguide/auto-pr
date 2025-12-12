@@ -53,6 +53,12 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
     help="Working directory to store configuration and repositories",
 )
 @click.option(
+    "--repos-dir",
+    "repos_dir_path",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True),
+    help="Custom directory containing cloned repositories",
+)
+@click.option(
     "--debug/--no-debug",
     envvar="APR_DEBUG",
     default=False,
@@ -60,9 +66,10 @@ def _ensure_set_up(cfg: config.Config, db: database.Database):
     help="Whether to enable debug mode or not",
 )
 @click.version_option(__version__, message="%(prog)s: %(version)s")
-def cli(wd_path: str, debug: bool):
+def cli(wd_path: str, repos_dir_path: Optional[str], debug: bool):
     global WORKDIR
-    WORKDIR = workdir.get(wd_path)
+    custom_repos = Path(repos_dir_path) if repos_dir_path else None
+    WORKDIR = workdir.get(wd_path, custom_repos_dir=custom_repos)
     set_debug(debug)
 
 
