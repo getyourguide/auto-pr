@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Optional
 
 import yaml
 from marshmallow import ValidationError
@@ -14,9 +15,11 @@ REPOS_DIR_NAME = "repos"
 
 class WorkDir:
     location: Path
+    _custom_repos_dir: Optional[Path]
 
-    def __init__(self, location: Path):
+    def __init__(self, location: Path, custom_repos_dir: Optional[Path] = None):
         self.location = location
+        self._custom_repos_dir = custom_repos_dir
 
     @property
     def config_file(self) -> Path:
@@ -28,12 +31,40 @@ class WorkDir:
 
     @property
     def repos_dir(self) -> Path:
+        # Priority: 1. CLI option, 2. Config file, 3. Default
+        if self._custom_repos_dir:
+            return self._custom_repos_dir
+
+        # Try reading from config
+        if self.config_file.exists():
+            try:
+                cfg = read_config(self)
+                if cfg.custom_repos_dir:
+                    return Path(cfg.custom_repos_dir)
+            except Exception:
+                # If config reading fails, fall back to default
+                pass
+
+        # Default behavior
         return self.location / REPOS_DIR_NAME
 
 
 def init(wd: WorkDir, credentials: config.Credentials):
-    # create work dir and repos dir
-    wd.repos_dir.mkdir(parents=True, exist_ok=True)
+    # Determine repos dir and validate/create
+    repos_dir_to_use = wd.repos_dir
+    is_custom_repos_dir = wd._custom_repos_dir is not None or (
+        wd.config_file.exists() and read_config(wd).custom_repos_dir is not None
+    )
+
+    if is_custom_repos_dir:
+        # Custom repos dir - must exist
+        if not repos_dir_to_use.exists():
+            raise CliException(
+                f"Custom repos directory does not exist: {repos_dir_to_use}"
+            )
+    else:
+        # Default repos dir - create it
+        repos_dir_to_use.mkdir(parents=True, exist_ok=True)
 
     # create default config
     if not wd.config_file.exists():
@@ -109,10 +140,10 @@ def read_database(wd: WorkDir) -> database.Database:
         raise CliException(f"Failed to deserialize database: {err.messages}")
 
 
-def get(wd_path: str) -> WorkDir:
+def get(wd_path: str, custom_repos_dir: Optional[Path] = None) -> WorkDir:
     if wd_path:
         workdir_path = Path(wd_path)
     else:
         workdir_path = Path.cwd()
 
-    return WorkDir(workdir_path)
+    return WorkDir(workdir_path, custom_repos_dir=custom_repos_dir)

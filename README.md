@@ -88,6 +88,56 @@ If a referenced environment variable is not set, auto-pr will display a clear er
 
 Alternatively, if you wish to keep your API Key outside of `config.yaml` without modifying the config file, you can set the env var `APR_API_KEY` with your GitHub Token
 
+#### Using a Custom Repositories Directory
+
+By default, auto-pr clones repositories into a `repos/` subdirectory within your working directory. If you already have repositories cloned locally (e.g., >1k repositories), you can configure auto-pr to use your existing directory instead:
+
+**Option 1: Config file**
+
+Add `custom_repos_dir` to your `config.yaml`:
+
+```yaml
+credentials:
+  api_key: ${GITHUB_API_KEY}
+  ssh_key_file: ${HOME}/.ssh/id_rsa
+pr:
+  title: 'My awesome change'
+  branch: auto-pr
+  message: Update dependencies
+  body: Automated update
+  draft: false
+repositories:
+  - mode: add
+    match_owner: myorg
+update_command:
+  - echo
+  - "Hello"
+custom_repos_dir: /path/to/existing/repos  # Point to your existing cloned repos
+```
+
+The `custom_repos_dir` field supports environment variable expansion:
+
+```yaml
+custom_repos_dir: ${HOME}/all-my-repos
+```
+
+**Option 2: CLI flag**
+
+Use the `--repos-dir` option when running commands:
+
+```bash
+auto-pr --repos-dir=/path/to/existing/repos pull
+auto-pr --repos-dir=/path/to/existing/repos test
+auto-pr --repos-dir=/path/to/existing/repos run
+```
+
+The CLI option takes precedence over the config file setting.
+
+**Important notes:**
+- The custom repos directory must exist before running `auto-pr init`
+- auto-pr will use the existing cloned repositories and apply its cleanup operations as normal
+- This is useful for organizations with many repositories to avoid duplicating disk space
+
 ### Repositories
 
 You can define the list of repositories to pull and build into the database to update using a list of rules.
