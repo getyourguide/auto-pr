@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Add custom repositories directory support
+  - Add `custom_repos_dir` configuration option to use existing cloned repositories
+  - Add `--repos-dir` CLI flag to override repository directory location
+  - Supports environment variable expansion with `${VAR_NAME}` syntax
+  - Useful for organizations with >1k repositories to avoid duplicating disk space
+  - Priority order: CLI flag > config file > default `repos/` subdirectory
+
 ## 1.2.0
 
 - Add environment variable expansion support in `config.yaml` for credentials

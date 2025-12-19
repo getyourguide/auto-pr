@@ -103,6 +103,22 @@ class Config:
     pr: PrTemplate
     repositories: List[Filter] = field(default_factory=list)  # is equal to assigning []
     update_command: List[str] = field(default_factory=list)
+    custom_repos_dir: Optional[str] = None
 
 
-CONFIG_SCHEMA = marshmallow_dataclass.class_schema(Config)()
+class ConfigSchema(Schema):
+    credentials = fields.Nested(CredentialsSchema, required=True)
+    pr = fields.Nested(PR_TEMPLATE_SCHEMA, required=True)
+    repositories = fields.List(fields.Nested(FILTERS_SCHEMA), load_default=list)
+    update_command = fields.List(fields.Str(), load_default=list)
+    custom_repos_dir = fields.Str(required=False, allow_none=True)
+
+    @post_load
+    def expand_config_env_vars(self, data: Dict[str, Any], **kwargs: Any) -> Config:
+        """Expand environment variables in custom_repos_dir after loading."""
+        if "custom_repos_dir" in data and data["custom_repos_dir"] is not None:
+            data["custom_repos_dir"] = expand_env_vars(data["custom_repos_dir"])
+        return Config(**data)
+
+
+CONFIG_SCHEMA = ConfigSchema()
