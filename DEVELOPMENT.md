@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/) - Fast Python package manager
-- Python 3.9.2 or higher
+- Python 3.10 or higher
 - Git
 
 ## Setup
