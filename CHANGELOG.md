@@ -8,6 +8,7 @@
   - Supports environment variable expansion with `${VAR_NAME}` syntax
   - Useful for organizations with >1k repositories to avoid duplicating disk space
   - Priority order: CLI flag > config file > default `repos/` subdirectory
+- (breaking )Minimum Python version required changes to 3.10
 
 ## 1.2.0
 
