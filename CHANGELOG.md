@@ -8,7 +8,9 @@
   - Supports environment variable expansion with `${VAR_NAME}` syntax
   - Useful for organizations with >1k repositories to avoid duplicating disk space
   - Priority order: CLI flag > config file > default `repos/` subdirectory
-- (breaking )Minimum Python version required changes to 3.10
+- (breaking) Minimum Python version required changes to 3.10
+- Remove pip dependency from publish workflow
+  - Use official `astral-sh/setup-uv` action instead of pip-based uv installation
 
 ## 1.2.0
 
