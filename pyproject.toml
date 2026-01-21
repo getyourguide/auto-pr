@@ -28,7 +28,7 @@ dependencies = [
 dev = [
     "pytest>=8.0.0",
     "pytest-socket>=0.7.0",
-    "setuptools==80.9.0",
+    "setuptools==80.10.1",
     "wheel>=0.44.0",
     "pre-commit>=4.0.0",
     "coverage>=7.0.0",
