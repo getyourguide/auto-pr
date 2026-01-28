@@ -213,6 +213,10 @@ For information on setting up a development environment and contributing to auto
 
 For sensitive security matters please contact [security@getyourguide.com](mailto:security@getyourguide.com).
 
+## Latest Updates
+
+<!-- Add your latest updates here. Recent changes and improvements will be documented in this section. -->
+
 ## Legal
 
 Copyright 2021 GetYourGuide GmbH.
