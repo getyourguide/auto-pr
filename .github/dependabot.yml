@@ -2,9 +2,39 @@ version: 2
 updates:
   - package-ecosystem: "uv"
     directory: "/"
+    open-pull-requests-limit: 5
     schedule:
-      interval: "daily"
+      interval: daily
+      time: "08:30"
+      timezone: Europe/Berlin
+    groups:
+      patch-and-minor:
+        update-types:
+          - patch
+          - minor
+    cooldown:
+      semver-major-days: 21
+      semver-minor-days: 7
+      semver-patch-days: 3
+      default-days: 7
+      exclude:
+        - '*getyourguide*'
   - package-ecosystem: "npm"
     directory: "/"
+    open-pull-requests-limit: 5
     schedule:
-      interval: "daily"
+      interval: daily
+      time: "08:30"
+      timezone: Europe/Berlin
+    groups:
+      patch-and-minor:
+        update-types:
+          - patch
+          - minor
+    cooldown:
+      semver-major-days: 21
+      semver-minor-days: 7
+      semver-patch-days: 3
+      default-days: 7
+      exclude:
+        - '*getyourguide*'
