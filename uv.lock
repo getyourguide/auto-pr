@@ -34,7 +34,7 @@ requires-dist = [
     { name = "click", specifier = "==8.3.1" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "cryptography", specifier = ">=45.0.0" },
-    { name = "marshmallow", specifier = "==4.2.3" },
+    { name = "marshmallow", specifier = "==4.2.4" },
     { name = "marshmallow-dataclass", specifier = "==8.7.1" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0.0" },
     { name = "pygithub", specifier = "==2.8.1" },
@@ -531,15 +531,15 @@ wheels = [
 
 [[package]]
 name = "marshmallow"
-version = "4.2.3"
+version = "4.2.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "backports-datetime-fromisoformat", marker = "python_full_version < '3.11'" },
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7f/ed/ecdd3a8259680dc9626ed5971b110c9be560962e11f7b0319b45ec2092b1/marshmallow-4.2.3.tar.gz", hash = "sha256:3e3fef6b3603721a25a723b8caedfa488369bddaf9bc03b40b9442c90aebd22b", size = 222932, upload-time = "2026-03-25T23:27:18.237Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/31/484ad430fa99de2ec4ed8c374578efcf36f42fbc7c7f91c76ef0a64fcbd0/marshmallow-4.2.4.tar.gz", hash = "sha256:1ab9c798651b9048d127969d9423a0e47510e34100df1d3e24c9d5b6cdc26a86", size = 223104, upload-time = "2026-04-02T13:10:31.893Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/58/2e/ce3278954d44903ccf8606c2a16e6b3ad8e10146c21de1b7b9b0f5812b23/marshmallow-4.2.3-py3-none-any.whl", hash = "sha256:c84fd89817ecea690bde1eb925036070e5e9883148217585adc56d5cfbc082b8", size = 48876, upload-time = "2026-03-25T23:27:16.907Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/df/7d6d6625ec822d5adf05b55a1a0f53e2f03627c6e841ea5655310b8fda22/marshmallow-4.2.4-py3-none-any.whl", hash = "sha256:06f3a7ec7081e54e8026a8bd5e7c4e0e88bff82a8fa33714a33166917f2b353a", size = 48737, upload-time = "2026-04-02T13:10:30.206Z" },
 ]
 
 [[package]]
