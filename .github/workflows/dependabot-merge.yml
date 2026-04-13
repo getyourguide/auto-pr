@@ -2,7 +2,17 @@ name: Dependabot Merge
 
 on:
   workflow_dispatch:
+    inputs:
+      notify_only_merged:
+        description: "Notify only merged and SEC PRs"
+        type: boolean
+        default: true
+        required: false
+
   schedule:
+    # Daily: merge PRs and report only merged (no notifications to support)
+    - cron: "0,30 8 * * Mon-Fri"
+    # Weekly: notify blocked PRs to support (Mondays only)
     - cron: "0 9 * * Mon"
 
 permissions:
@@ -20,6 +30,6 @@ jobs:
     name: Auto merge
     uses: getyourguide/actions/.github/workflows/dependabot-merge.yml@main
     with:
-      slack_channel: "#sec-dependabot-automerge"
-      slack_ping_support: false
+      slack_ping_support: true
+      hide_report_sections: ${{ (github.event.schedule == '0,30 8 * * Mon-Fri' || (github.event_name == 'workflow_dispatch' && inputs.notify_only_merged)) && 'blocked,pending-approval' || '' }}
     secrets: inherit
