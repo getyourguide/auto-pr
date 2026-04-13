@@ -11,7 +11,7 @@ on:
 
   schedule:
     # Daily: merge PRs and report only merged (no notifications to support)
-    - cron: "0,30 8 * * Mon-Fri"
+    - cron: "0 8 * * Mon-Fri"
     # Weekly: notify blocked PRs to support (Mondays only)
     - cron: "0 9 * * Mon"
 
@@ -31,5 +31,5 @@ jobs:
     uses: getyourguide/actions/.github/workflows/dependabot-merge.yml@main
     with:
       slack_ping_support: true
-      hide_report_sections: ${{ (github.event.schedule == '0,30 8 * * Mon-Fri' || (github.event_name == 'workflow_dispatch' && inputs.notify_only_merged)) && 'blocked,pending-approval' || '' }}
+      hide_report_sections: ${{ (github.event.schedule == '0 8 * * Mon-Fri' || (github.event_name == 'workflow_dispatch' && inputs.notify_only_merged)) && 'blocked,pending-approval' || '' }}
     secrets: inherit
