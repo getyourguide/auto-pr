@@ -22,7 +22,7 @@ dependencies = [
     "PyGithub==2.8.1",
     "single-source==0.4.0",
     "cryptography>=45.0.0",
-    "urllib3>=2.6.3",
+    "urllib3>=2.7.0",
     "PyJWT>=2.12.0",
 ]
 
