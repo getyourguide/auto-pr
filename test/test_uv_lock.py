@@ -10,7 +10,9 @@ def _version_tuple(version: str) -> tuple:
 
 
 def _locked_version(content: str, name: str) -> str:
-    match = re.search(rf'\[\[package\]\]\nname = "{re.escape(name)}"\nversion = "([^"]+)"', content)
+    match = re.search(
+        rf'\[\[package\]\]\nname = "{re.escape(name)}"\nversion = "([^"]+)"', content
+    )
     assert match, f"No [[package]] entry for {name} found in uv.lock"
     return match.group(1)
 
